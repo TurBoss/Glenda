@@ -59,27 +59,6 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             self.connection.privmsg(channel,
                                                     "<{0}> {1}".format(event['sender'].split(":", 1)[0],
                                                                        event['content']['body']))
-                    """
-                    if event['room_id'] == "!DpMgMbnDzOvUIXvoTX:jauriarts.org":
-                        self.connection.privmsg("#moddev",
-                                                "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                   event['content']['body']))
-
-                    elif event['room_id'] == "!QnNgrBOChCJVVqWWjY:matrix.org":
-                        self.connection.privmsg("#sy",
-                                                "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                   event['content']['body']))
-
-                    elif event['room_id'] == "!hFiEYqEeoJhYtmRJSH:jauriarts.org":
-                        self.connection.privmsg("#s44",
-                                                "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                   event['content']['body']))
-
-                    elif event['room_id'] == "!EoIGLmjIYqPSFLNWVn:matrix.org":
-                        self.connection.privmsg("#s44",
-                                                "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                   event['content']['body']))
-                    """
         else:
             print(event['type'])
 
