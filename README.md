@@ -1,5 +1,5 @@
 **Glenda**
-
+-
 Simple _IRC_ to _Matrix_.org bridge
 
 
@@ -9,4 +9,8 @@ Just copy `config_sample.yml` to `config.yml`
 
 and fit to your need
 
-then run `main.py`
+I recommend to set a virtualenv
+
+`pip install -r requiriments.txt`
+
+then run `./main.py`
