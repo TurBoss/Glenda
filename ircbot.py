@@ -52,9 +52,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         if event['type'] == "m.room.message":
             if event['content']['msgtype'] == "m.text":
                 if event['sender'] != "@TurBot:jauriarts.org":
-
                     for channel, room_id in self.rooms_id.items():
-
                         if event['room_id'] in room_id:
                             self.connection.privmsg(channel,
                                                     "<{0}> {1}".format(event['sender'].split(":", 1)[0],
