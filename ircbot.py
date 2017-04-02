@@ -59,7 +59,6 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             self.connection.privmsg(channel,
                                                     "<{0}> {1}".format(event['sender'].split(":", 1)[0],
                                                                        event['content']['body']))
-
         else:
             print(event['type'])
 
@@ -124,7 +123,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         elif cmd == "stats":
             for chname, chobj in self.channels.items():
                 c.privmsg(nick, "--- Channel statistics ---")
-                c.privmsg(nick, "Channel: " + chname)
+                c.privmsg(nick, "Channel: {0}".format(chname))
                 users = sorted(chobj.users())
                 c.privmsg(nick, "Users: " + ", ".join(users))
                 opers = sorted(chobj.opers())

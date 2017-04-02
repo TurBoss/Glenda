@@ -38,10 +38,9 @@ def main():
     username = cfg["matrix"]["username"]
     password = cfg["matrix"]["password"]
 
+    # IRC
 
-    # SpringRTS
-
-    spring_server = cfg["irc"]["spring_server"]
+    irc_server = cfg["irc"]["spring_server"]
 
     bot_nick = cfg["irc"]["bot_nick"]
     bot_password = cfg["irc"]["bot_password"]
@@ -89,7 +88,7 @@ def main():
             print("Couldn't find room.")
             sys.exit(12)
 
-    bot = IrcBot(channels, bot_nick, spring_server, bot_password, client, rooms, rooms_id, bot_owner)
+    bot = IrcBot(channels, bot_nick, irc_server, bot_password, client, rooms, rooms_id, bot_owner)
     bot.start()
 
 if __name__ == '__main__':
