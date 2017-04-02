@@ -31,6 +31,8 @@ def main():
 
     rooms = {}
 
+    bot_owner = cfg["bot_owner"]
+
     host = cfg["matrix"]["host"]
 
     username = cfg["matrix"]["username"]
@@ -48,7 +50,7 @@ def main():
     rooms_id = {}
     channels = []
 
-    print("Matrix rooms:")
+    print("Bridged rooms:")
 
     for channel, room in cfg["channels"].items():
         print("{0} <-> {1}".format(channel, room[0]))
@@ -87,7 +89,7 @@ def main():
             print("Couldn't find room.")
             sys.exit(12)
 
-    bot = IrcBot(channels, bot_nick, spring_server, bot_password, client, rooms, rooms_id)
+    bot = IrcBot(channels, bot_nick, spring_server, bot_password, client, rooms, rooms_id, bot_owner)
     bot.start()
 
 if __name__ == '__main__':

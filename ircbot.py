@@ -31,10 +31,12 @@ from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 
 class IrcBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, channels, nickname, server, password, client, rooms, rooms_id, port=6667, ):
+    def __init__(self, channels, nickname, server, password, client, rooms, rooms_id, bot_owner, port=6667, ):
 
         spec = irc.bot.ServerSpec(server, port=port, password=password)
         irc.bot.SingleServerIRCBot.__init__(self, [spec], nickname, nickname)
+
+        self.bot_owner = bot_owner
 
         self.channel_list = channels
 
@@ -106,7 +108,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        if nick != "TurBoss":
+        if nick != self.bot_owner:
             return
 
         if cmd == "disconnect":

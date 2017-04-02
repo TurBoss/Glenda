@@ -1,3 +1,5 @@
+bot_owner: your_irc_nick
+
 matrix:
     host: http://localhost:8008
     username: bot_name
