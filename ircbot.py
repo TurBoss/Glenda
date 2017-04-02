@@ -59,6 +59,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             self.connection.privmsg(channel,
                                                     "<{0}> {1}".format(event['sender'].split(":", 1)[0],
                                                                        event['content']['body']))
+
         else:
             print(event['type'])
 
@@ -108,27 +109,34 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        if nick != self.bot_owner:
-            return
-
         if cmd == "disconnect":
-            self.disconnect()
+            if nick is self.bot_owner:
+                self.disconnect()
+            else:
+                c.privmsg(nick, "you are not the bot owner")
+
         elif cmd == "die":
-            self.die()
+            if nick is self.bot_owner:
+                self.die()
+            else:
+                c.privmsg(nick, "you are not the bot owner")
+
         elif cmd == "stats":
             for chname, chobj in self.channels.items():
-                c.notice(nick, "--- Channel statistics ---")
-                c.notice(nick, "Channel: " + chname)
+                c.privmsg(nick, "--- Channel statistics ---")
+                c.privmsg(nick, "Channel: " + chname)
                 users = sorted(chobj.users())
-                c.notice(nick, "Users: " + ", ".join(users))
+                c.privmsg(nick, "Users: " + ", ".join(users))
                 opers = sorted(chobj.opers())
-                c.notice(nick, "Opers: " + ", ".join(opers))
+                c.privmsg(nick, "Opers: " + ", ".join(opers))
                 voiced = sorted(chobj.voiced())
-                c.notice(nick, "Voiced: " + ", ".join(voiced))
+                c.privmsg(nick, "Voiced: " + ", ".join(voiced))
+
         elif cmd == "dcc":
             dcc = self.dcc_listen()
             c.ctcp("DCC", nick, "CHAT chat %s %d" % (
                 ip_quad_to_numstr(dcc.localaddress),
                 dcc.localport))
+
         else:
-            c.notice(nick, "Not understood: " + cmd)
+            c.privmsg(nick, "Not understood: " + cmd)
