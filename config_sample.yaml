@@ -1,0 +1,20 @@
+matrix:
+    host: http://localhost:8008
+    username: bot_name
+    password: bot_pass
+
+    rooms_id_alias:
+        room1: "#room1:localhost.lan"
+        room2: "#room2:localhost.lan"
+        room3: "#room3:localhost.lan"
+        room4: "#room4:localhost.lan"
+irc:
+    spring_server: irc.localhost.lan
+    bot_nick: bot_nick
+    bot_password: bot_pass
+
+    channels:
+        channel1: "#channel1"
+        channel2: "#channel2"
+        channel3: "#channel3"
+        channel4: "#channel4"
