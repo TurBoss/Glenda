@@ -36,13 +36,6 @@ def main():
     username = cfg["matrix"]["username"]
     password = cfg["matrix"]["password"]
 
-    rooms_id_alias = []
-
-    print("Matrix rooms:")
-
-    for name, room in cfg["matrix"]["rooms_id_alias"].items():
-        print("{0} {1}".format(name, room))
-        rooms_id_alias.append(room)
 
     # SpringRTS
 
@@ -51,13 +44,19 @@ def main():
     bot_nick = cfg["irc"]["bot_nick"]
     bot_password = cfg["irc"]["bot_password"]
 
+    rooms_alias = []
+    rooms_id = {}
     channels = []
 
-    print("IRC rooms:")
+    print("Matrix rooms:")
 
-    for name, room in cfg["irc"]["channels"].items():
-        print("{0} {1}".format(name, room))
-        channels.append(room)
+    for channel, room in cfg["channels"].items():
+        print("{0} <-> {1}".format(channel, room[0]))
+        rooms_alias.append(room[0])
+
+        rooms_id[channel] = room[1]
+
+        channels.append(channel)
 
     client = MatrixClient(host)
 
@@ -77,7 +76,7 @@ def main():
         sys.exit(3)
 
     try:
-        for name in rooms_id_alias:
+        for name in rooms_alias:
             rooms[name] = client.join_room(name)
     except MatrixRequestError as e:
         print(e)
@@ -88,7 +87,7 @@ def main():
             print("Couldn't find room.")
             sys.exit(12)
 
-    bot = IrcBot(channels, bot_nick, spring_server, bot_password, client, rooms)
+    bot = IrcBot(channels, bot_nick, spring_server, bot_password, client, rooms, rooms_id)
     bot.start()
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 
 class IrcBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, channels, nickname, server, password, client, rooms, port=6667, ):
+    def __init__(self, channels, nickname, server, password, client, rooms, rooms_id, port=6667, ):
 
         spec = irc.bot.ServerSpec(server, port=port, password=password)
         irc.bot.SingleServerIRCBot.__init__(self, [spec], nickname, nickname)
@@ -40,6 +40,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
 
         self.client = client
         self.rooms = rooms
+        self.rooms_id = rooms_id
 
         for name, room in self.rooms.items():
             self.rooms[name].add_listener(self.on_matrix_msg)
@@ -52,11 +53,13 @@ class IrcBot(irc.bot.SingleServerIRCBot):
             if event['content']['msgtype'] == "m.text":
                 if event['sender'] != "@TurBot:jauriarts.org":
 
-                    if event['room_id'] == "!rgAdhPTYNKLOnGYqFO:jauriarts.org":
-                        self.connection.privmsg("#jauriarts",
-                                                "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                   event['content']['body']))
+                    for channel, room_id in self.rooms_id.items():
 
+                        if event['room_id'] in room_id:
+                            self.connection.privmsg(channel,
+                                                    "<{0}> {1}".format(event['sender'].split(":", 1)[0],
+                                                                       event['content']['body']))
+                    """
                     if event['room_id'] == "!DpMgMbnDzOvUIXvoTX:jauriarts.org":
                         self.connection.privmsg("#moddev",
                                                 "<{0}> {1}".format(event['sender'].split(":", 1)[0],
@@ -76,10 +79,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                         self.connection.privmsg("#s44",
                                                 "<{0}> {1}".format(event['sender'].split(":", 1)[0],
                                                                    event['content']['body']))
-
-
-                    else:
-                        print(event['room_id'])
+                    """
         else:
             print(event['type'])
 
