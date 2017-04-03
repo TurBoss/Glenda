@@ -87,6 +87,16 @@ class IrcBot(irc.bot.SingleServerIRCBot):
             self.do_command(e, a[1].strip())
         return
 
+    def on_action(self, c, e):
+
+        msg = e.arguments[0]
+        source = e.source.split("!", 1)
+
+        if e.target == "#sy":
+            self.rooms["#spring-rts:jauriarts.org"].send_text("* {0} {1}".format(source[0], msg))
+        else:
+            self.rooms["{0}:jauriarts.org".format(e.target)].send_text("* {0} {1}".format(source[0], msg))
+
     def on_dccmsg(self, c, e):
         # non-chat DCC messages are raw bytes; decode as text
         text = e.arguments[0].decode('utf-8')
@@ -125,17 +135,17 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                 c.privmsg(nick, "--- Channel statistics ---")
                 c.privmsg(nick, "Channel: {0}".format(chname))
                 users = sorted(chobj.users())
-                c.privmsg(nick, "Users: " + ", ".join(users))
+                c.privmsg(nick, "Users: {0}".format(", ".join(users)))
                 opers = sorted(chobj.opers())
-                c.privmsg(nick, "Opers: " + ", ".join(opers))
+                c.privmsg(nick, "Opers: {0}".format(", ".join(opers)))
                 voiced = sorted(chobj.voiced())
-                c.privmsg(nick, "Voiced: " + ", ".join(voiced))
+                c.privmsg(nick, "Voiced: {0}".format(", ".join(voiced)))
 
         elif cmd == "dcc":
             dcc = self.dcc_listen()
-            c.ctcp("DCC", nick, "CHAT chat %s %d" % (
+            c.ctcp("DCC", nick, "CHAT chat {0} {1}".format(
                 ip_quad_to_numstr(dcc.localaddress),
                 dcc.localport))
 
         else:
-            c.privmsg(nick, "Not understood: " + cmd)
+            c.privmsg(nick, "Not understood: {0}".format(cmd))
