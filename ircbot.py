@@ -109,13 +109,13 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         c = self.connection
 
         if cmd == "disconnect":
-            if nick is self.bot_owner:
+            if nick == self.bot_owner:
                 self.disconnect()
             else:
                 c.privmsg(nick, "you are not the bot owner")
 
         elif cmd == "die":
-            if nick is self.bot_owner:
+            if nick == self.bot_owner:
                 self.die()
             else:
                 c.privmsg(nick, "you are not the bot owner")
