@@ -1,29 +1,6 @@
 #! /usr/bin/env python
-#
-# Example program using irc.bot.
-#
-# Joel Rosdahl <joel@rosdahl.net>
 
-"""A simple example bot.
-
-This is an example bot that uses the SingleServerIRCBot class from
-irc.bot.  The bot enters a channel and listens for commands in
-private messages and channel traffic.  Commands in channel messages
-are given by prefixing the text by the bot name followed by a colon.
-It also responds to DCC CHAT invitations and echos data sent in such
-sessions.
-
-The known commands are:
-
-    stats -- Prints some channel information.
-
-    disconnect -- Disconnect the bot.  The bot will try to reconnect
-                  after 60 seconds.
-
-    die -- Let the bot cease to exist.
-
-    dcc -- Let the bot invite you to a DCC CHAT connection.
-"""
+from io import StringIO
 
 import irc.bot
 import irc.strings
@@ -51,21 +28,35 @@ class IrcBot(irc.bot.SingleServerIRCBot):
 
     def on_matrix_msg(self, room, event):
 
-        if event['sender'] != "@TurBot:jauriarts.org":
-            if event['type'] == "m.room.message":
+        if event['type'] == "m.room.message":
+            if event['sender'] != "@TurBot:jauriarts.org":
+                if event['content']['msgtype'] == "m.image":
+                    for channel, room_id in self.rooms_id.items():
+                       if event['room_id'] in room_id[1]:
+                           url = "https://jauriarts.org:8448/_matrix/media/v1/download/jauriarts.org/"
+                           mxc_url = event['content']['url']
+                           pic_code = mxc_url[-24:]
+                           pic_url = "{0}{1}".format(url, pic_code)
+                           sender = event['sender'].split(":", 1)[0]
+                           msg =  "<{0}> {1}".format(sender, pic_url)
+
+                           self.connection.privmsg(channel, msg)
+
                 if event['content']['msgtype'] == "m.text":
                     for channel, room_id in self.rooms_id.items():
-                        if event['room_id'] in room_id:
-                            self.connection.privmsg(channel,
-                                                    "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                       event['content']['body']))
+                        if event['room_id'] in room_id[1]:
+                            buf = StringIO(event['content']['body'])
+                            for line in buf.read().splitlines():
+                                self.connection.privmsg(channel,
+                                    "<{0}> {1}".format(event['sender'].split(":", 1)[0],
+                                                       line))
 
                 if event['content']['msgtype'] == "m.emote":
                     for channel, room_id in self.rooms_id.items():
-                        if event['room_id'] in room_id:
+                        if event['room_id'] in room_id[1]:
                             self.connection.privmsg(channel,
                                                     "/me <{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                       event['content']['body']))
+                                                                           event['content']['body']))
 
         else:
             print(event['type'])
@@ -85,10 +76,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)
 
-        if e.target == "#sy":
-            self.rooms["#spring-rts:jauriarts.org"].send_text("[{0}] {1}".format(source[0], msg))
-        else:
-            self.rooms["{0}:jauriarts.org".format(e.target)].send_text("[{0}] {1}".format(source[0], msg))
+        self.rooms["{0}".format(e.target)].send_text("[{0}] {1}".format(source[0], msg))
 
         a = e.arguments[0].split(":", 1)
         if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
@@ -100,10 +88,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)
 
-        if e.target == "#sy":
-            self.rooms["#spring-rts:jauriarts.org"].send_text("* {0} {1}".format(source[0], msg))
-        else:
-            self.rooms["{0}:jauriarts.org".format(e.target)].send_text("* {0} {1}".format(source[0], msg))
+        self.rooms["{0}".format(e.target)].send_text("* {0} {1}".format(source[0], msg))
 
     def on_dccmsg(self, c, e):
         # non-chat DCC messages are raw bytes; decode as text

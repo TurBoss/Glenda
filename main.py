@@ -45,7 +45,6 @@ def main():
     bot_nick = cfg["irc"]["bot_nick"]
     bot_password = cfg["irc"]["bot_password"]
 
-    rooms_alias = []
     rooms_id = {}
     channels = []
 
@@ -53,12 +52,12 @@ def main():
 
     for channel, room in cfg["channels"].items():
         print("{0} <-> {1}".format(channel, room[0]))
-        rooms_alias.append(room[0])
 
-        rooms_id[channel] = room[1]
+        rooms_id[channel] = room
 
         channels.append(channel)
 
+                           #print(msg)
     client = MatrixClient(host)
 
     try:
@@ -77,8 +76,8 @@ def main():
         sys.exit(3)
 
     try:
-        for name in rooms_alias:
-            rooms[name] = client.join_room(name)
+        for k, v in rooms_id.items():
+            rooms[k] = client.join_room(v[0])
     except MatrixRequestError as e:
         print(e)
         if e.code == 400:
@@ -87,7 +86,7 @@ def main():
         else:
             print("Couldn't find room.")
             sys.exit(12)
-
+    
     bot = IrcBot(channels, bot_nick, irc_server, bot_password, client, rooms, rooms_id, bot_owner)
     bot.start()
 
