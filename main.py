@@ -23,7 +23,6 @@ from ircbot import IrcBot
 
 
 def main():
-
     with open("config.yaml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
@@ -34,6 +33,7 @@ def main():
     bot_owner = cfg["bot_owner"]
 
     host = cfg["matrix"]["host"]
+    domain = cfg["matrix"]["domain"]
 
     username = cfg["matrix"]["username"]
     password = cfg["matrix"]["password"]
@@ -57,7 +57,7 @@ def main():
 
         channels.append(channel)
 
-                           #print(msg)
+        # print(msg)
     client = MatrixClient(host)
 
     try:
@@ -86,9 +86,19 @@ def main():
         else:
             print("Couldn't find room.")
             sys.exit(12)
-    
-    bot = IrcBot(channels, bot_nick, irc_server, bot_password, client, rooms, rooms_id, bot_owner)
+
+    bot = IrcBot(channels,
+                 domain,
+                 username,
+                 bot_nick,
+                 irc_server,
+                 bot_password,
+                 client,
+                 rooms,
+                 rooms_id,
+                 bot_owner)
     bot.start()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)

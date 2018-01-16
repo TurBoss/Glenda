@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+import sys
+import pprint
+
 from io import StringIO
 
 import irc.bot
@@ -8,12 +11,18 @@ from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 
 class IrcBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, channels, nickname, server, password, client, rooms, rooms_id, bot_owner, port=6667, ):
+    def __init__(self, channels, domain, username, nickname, server, password, client, rooms, rooms_id, bot_owner,
+                 port=6667):
 
         spec = irc.bot.ServerSpec(server, port=port, password=password)
         irc.bot.SingleServerIRCBot.__init__(self, [spec], nickname, nickname)
 
+        self.pp = pprint.PrettyPrinter(indent=4)
+
+        self.domain = domain
+
         self.bot_owner = bot_owner
+        self.username = username
 
         self.channel_list = channels
 
@@ -29,40 +38,44 @@ class IrcBot(irc.bot.SingleServerIRCBot):
     def on_matrix_msg(self, room, event):
 
         if event['type'] == "m.room.message":
-            if event['sender'] != "@TurBot:jauriarts.org":
+            if event['sender'] != f"@{self.username}:{self.domain}":
                 if event['content']['msgtype'] == "m.image":
-                    for channel, room_id in self.rooms_id.items():
-                       if event['room_id'] in room_id[1]:
-                           url = "https://jauriarts.org:8448/_matrix/media/v1/download/jauriarts.org/"
-                           mxc_url = event['content']['url']
-                           pic_code = mxc_url[-24:]
-                           pic_url = "{0}{1}".format(url, pic_code)
-                           sender = event['sender'].split(":", 1)[0]
-                           msg =  "<{0}> {1}".format(sender, pic_url)
+                    
+                    # self.pp.pprint(event)
 
-                           self.connection.privmsg(channel, msg)
+                    for channel, room_id in self.rooms_id.items():
+                        if event['room_id'] in room_id[1]:
+                            url = f"https://{self.domain}/_matrix/media/v1/download/{self.domain}/"
+                            mxc_url = event['content']['url']
+                            pic_code = mxc_url[-24:]
+                            pic_url = f"{url}{pic_code}"
+                            sender = event['sender'].split(":", 1)[0]
+                            msg = f"<{sender}> {pic_url}"
+
+                            self.connection.privmsg(channel, msg)
 
                 if event['content']['msgtype'] == "m.text":
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
-                                self.connection.privmsg(channel,
-                                    "<{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                       line))
+                                sender = event['sender'].split(":", 1)[0]
+                                self.connection.privmsg(channel, f"<{sender}> {line}")
 
                 if event['content']['msgtype'] == "m.emote":
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
-                            self.connection.privmsg(channel,
-                                                    "/me <{0}> {1}".format(event['sender'].split(":", 1)[0],
-                                                                           event['content']['body']))
-
+                            buf = StringIO(event['content']['body'])
+                            for line in buf.read().splitlines():
+                                sender = event['sender'].split(":", 1)[0]
+                                self.connection.privmsg(channel, f"<<{sender}>> {line}")
         else:
             print(event['type'])
 
     def on_nicknameinuse(self, c, e):
-        c.nick(c.get_nickname() + "_")
+        # c.nick(c.get_nickname() + "_")
+        print(f"nick {c.get_nickname()} name in used")
+        sys.exit(1)
 
     def on_welcome(self, c, e):
         for channel in self.channel_list:
@@ -74,21 +87,26 @@ class IrcBot(irc.bot.SingleServerIRCBot):
     def on_pubmsg(self, c, e):
 
         msg = e.arguments[0]
-        source = e.source.split("!", 1)
+        source = e.source.split("!", 1)[0]
 
-        self.rooms["{0}".format(e.target)].send_text("[{0}] {1}".format(source[0], msg))
+        print(msg, source)
 
-        a = e.arguments[0].split(":", 1)
-        if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
-            self.do_command(e, a[1].strip())
+        if "Nightwatch" in source:
+            self.rooms[f"{e.target}"].send_text(f"{msg}")
+        else:
+            self.rooms[f"{e.target}"].send_text(f"[{source}] {msg}")
+
         return
 
     def on_action(self, c, e):
 
         msg = e.arguments[0]
-        source = e.source.split("!", 1)
+        source = e.source.split("!", 1)[0]
 
-        self.rooms["{0}".format(e.target)].send_text("* {0} {1}".format(source[0], msg))
+        if "Nightwatch" in source:
+            self.rooms[f"{e.target}"].send_text(f"*{msg}")
+        else:
+            self.rooms[f"{e.target}"].send_text(f"*{source} {msg}")
 
     def on_dccmsg(self, c, e):
         # non-chat DCC messages are raw bytes; decode as text
@@ -135,10 +153,13 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                 c.privmsg(nick, "Voiced: {0}".format(", ".join(voiced)))
 
         elif cmd == "dcc":
-            dcc = self.dcc_listen()
-            c.ctcp("DCC", nick, "CHAT chat {0} {1}".format(
-                ip_quad_to_numstr(dcc.localaddress),
-                dcc.localport))
+            if nick == self.bot_owner:
+                dcc = self.dcc_listen()
+                c.ctcp("DCC", nick, "CHAT chat {0} {1}".format(
+                    ip_quad_to_numstr(dcc.localaddress),
+                    dcc.localport))
+            else:
+                c.privmsg(nick, "you are not the bot owner")
 
         else:
             c.privmsg(nick, "Not understood: {0}".format(cmd))
