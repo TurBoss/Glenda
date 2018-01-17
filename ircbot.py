@@ -4,6 +4,7 @@ import sys
 import pprint
 
 from io import StringIO
+from urllib.parse import urlparse
 
 import irc.bot
 import irc.strings
@@ -40,17 +41,22 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         if event['type'] == "m.room.message":
             if event['sender'] != f"@{self.username}:{self.domain}":
                 if event['content']['msgtype'] == "m.image":
-                    
+
                     # self.pp.pprint(event)
 
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
-                            url = f"https://{self.domain}/_matrix/media/v1/download/{self.domain}/"
+
                             mxc_url = event['content']['url']
-                            pic_code = mxc_url[-24:]
-                            pic_url = f"{url}{pic_code}"
+                            o = urlparse(mxc_url)
+
+                            domain = o.netloc
+                            pic_code = o.path
+
+                            url = f"https://{domain}/_matrix/media/v1/download/{domain}{pic_code}"
+
                             sender = event['sender'].split(":", 1)[0]
-                            msg = f"<{sender}> {pic_url}"
+                            msg = f"<{sender}> {url}"
 
                             self.connection.privmsg(channel, msg)
 
