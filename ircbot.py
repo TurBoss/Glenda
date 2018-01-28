@@ -94,7 +94,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        if "Nightwatch" or "MelBot" in source:
+        if "Nightwatch" in source or "MelBot" in source:
             self.rooms[f"{e.target}"].send_text(f"{msg}")
         else:
             self.rooms[f"{e.target}"].send_text(f"[{source}] {msg}")
@@ -106,7 +106,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        if "Nightwatch" or "MelBot" in source:
+        if "Nightwatch" in source or "MelBot" in source:
             self.rooms[f"{e.target}"].send_text(f"*{msg}")
         else:
             self.rooms[f"{e.target}"].send_text(f"*{source} {msg}")
