@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-import pprint
+import logging
 
 from io import StringIO
 from urllib.parse import urlparse
@@ -11,6 +11,8 @@ import irc.strings
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 
+
+
 class IrcBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channels, domain, username, nickname, server, password, client, rooms, rooms_id, bot_owner,
                  port=6667):
@@ -18,7 +20,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         spec = irc.bot.ServerSpec(server, port=port, password=password)
         irc.bot.SingleServerIRCBot.__init__(self, [spec], nickname, nickname)
 
-        self.pp = pprint.PrettyPrinter(indent=4)
+        self.log = logging.getLogger(__name__)
 
         self.domain = domain
 
@@ -41,9 +43,6 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         if event['type'] == "m.room.message":
             if event['sender'] != f"@{self.username}:{self.domain}":
                 if event['content']['msgtype'] == "m.image":
-
-                    # self.pp.pprint(event)
-
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
 
@@ -76,11 +75,11 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                                 sender = event['sender'].split(":", 1)[0]
                                 self.connection.privmsg(channel, f"<<{sender}>> {line}")
         else:
-            print(event['type'])
+            self.log.debug(event['type'])
 
     def on_nicknameinuse(self, c, e):
         # c.nick(c.get_nickname() + "_")
-        print(f"nick {c.get_nickname()} name in used")
+        self.log.info(f"nick {c.get_nickname()} name in used")
         sys.exit(1)
 
     def on_welcome(self, c, e):
@@ -95,9 +94,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        print(msg, source)
-
-        if "Nightwatch" in source:
+        if "Nightwatch" or "MelBot" in source:
             self.rooms[f"{e.target}"].send_text(f"{msg}")
         else:
             self.rooms[f"{e.target}"].send_text(f"[{source}] {msg}")
@@ -109,7 +106,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        if "Nightwatch" in source:
+        if "Nightwatch" or "MelBot" in source:
             self.rooms[f"{e.target}"].send_text(f"*{msg}")
         else:
             self.rooms[f"{e.target}"].send_text(f"*{source} {msg}")
