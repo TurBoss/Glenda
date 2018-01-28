@@ -28,7 +28,7 @@ from daemon_python import DaemonPython
 logging.basicConfig(filename='glenda.log', level=logging.DEBUG)
 
 
-class Glendaemon(DaemonPython):
+class GlendaDaemon(DaemonPython):
 
     def __init__(self, pid_file):
         super(DaemonPython, self).__init__()
@@ -68,19 +68,6 @@ class Glendaemon(DaemonPython):
 
     def run(self):
 
-        self.client = MatrixClient(self.host)
-
-        self.bot = IrcBot(self.channels,
-                          self.domain,
-                          self.username,
-                          self.bot_nick,
-                          self.irc_server,
-                          self.bot_password,
-                          self.client,
-                          self.rooms,
-                          self.rooms_id,
-                          self.bot_owner)
-
         self.log.info("Bridged rooms:")
 
         for channel, room in self.cfg["channels"].items():
@@ -88,6 +75,8 @@ class Glendaemon(DaemonPython):
 
             self.rooms_id[channel] = room
             self.channels.append(channel)
+
+        self.client = MatrixClient(self.host)
 
         try:
             self.client.login_with_password(self.username, self.password)
@@ -118,6 +107,18 @@ class Glendaemon(DaemonPython):
             else:
                 self.log.debug("Couldn't find room.")
                 sys.exit(12)
+
+        self.bot = IrcBot(self.channels,
+                          self.domain,
+                          self.username,
+                          self.bot_nick,
+                          self.irc_server,
+                          self.bot_password,
+                          self.client,
+                          self.rooms,
+                          self.rooms_id,
+                          self.bot_owner)
+
         try:
             self.bot.start()
 
@@ -140,17 +141,20 @@ def main():
 
     pidfile = 'glenda.pid'
 
-    daemon = Glendaemon(pidfile)
+    daemon = GlendaDaemon(pidfile)
 
     if operation == 'start':
         daemon.start()
         logging.info("Glenda started")
-    if operation == 'restart':
+    elif operation == 'restart':
         daemon.restart()
         logging.info("Glenda restarted")
-    if operation == 'stop':
+    elif operation == 'stop':
         daemon.stop()
         logging.info("Glenda stopped")
+    elif operation == 'status':
+        # daemon.stop()
+        logging.info("Not implemented yet(tm)")
     else:
         logging.info("Unknown command")
         sys.exit(2)
