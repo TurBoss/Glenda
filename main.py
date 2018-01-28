@@ -10,6 +10,7 @@
 # 4 - Bad username/password.
 # 11 - Wrong room format.
 # 12 - Couldn't find room.
+# 13 - IRC error
 
 import sys
 import logging
@@ -24,11 +25,15 @@ from ircbot import IrcBot
 
 from daemon_python import DaemonPython
 
+logging.basicConfig(filename='glenda.log', level=logging.DEBUG)
+
 
 class Glendaemon(DaemonPython):
 
     def __init__(self, pid_file):
         super(DaemonPython, self).__init__()
+
+        self.log = logging.getLogger(__name__)
 
         self.pid_file = pid_file
 
@@ -36,6 +41,8 @@ class Glendaemon(DaemonPython):
             self.cfg = yaml.load(yml_file)
 
         # Matrix
+
+        self.client = None
 
         self.rooms = {}
 
@@ -49,6 +56,8 @@ class Glendaemon(DaemonPython):
 
         # IRC
 
+        self.bot = None
+
         self.irc_server = self.cfg["irc"]["spring_server"]
 
         self.bot_nick = self.cfg["irc"]["bot_nick"]
@@ -56,6 +65,8 @@ class Glendaemon(DaemonPython):
 
         self.rooms_id = {}
         self.channels = []
+
+    def run(self):
 
         self.client = MatrixClient(self.host)
 
@@ -70,49 +81,52 @@ class Glendaemon(DaemonPython):
                           self.rooms_id,
                           self.bot_owner)
 
-    def run(self):
-
-        print("Bridged rooms:")
+        self.log.info("Bridged rooms:")
 
         for channel, room in self.cfg["channels"].items():
-            print("{0} <-> {1}".format(channel, room[0]))
+            self.log.info(f"{channel} <-> {room[0]}")
 
             self.rooms_id[channel] = room
-
             self.channels.append(channel)
 
         try:
             self.client.login_with_password(self.username, self.password)
+
         except MatrixRequestError as e:
-            print(e)
+            self.log.debug(e)
             if e.code == 403:
-                print("Bad username or password.")
+                self.log.debug("Bad username or password.")
                 sys.exit(4)
             else:
-                print("Check your sever details are correct.")
+                self.log.debug("Check your sever details are correct.")
                 sys.exit(2)
+
         except MissingSchema as e:
-            print("Bad URL format.")
-            print(e)
+            self.log.debug("Bad URL format.")
+            self.log.debug(e)
             sys.exit(3)
 
         try:
             for k, v in self.rooms_id.items():
                 self.rooms[k] = self.client.join_room(v[0])
+
         except MatrixRequestError as e:
-            print(e)
+            self.log.debug(e)
             if e.code == 400:
-                print("Room ID/Alias in the wrong format")
+                self.log.debug("Room ID/Alias in the wrong format")
                 sys.exit(11)
             else:
-                print("Couldn't find room.")
+                self.log.debug("Couldn't find room.")
                 sys.exit(12)
+        try:
+            self.bot.start()
 
-        self.bot.start()
+        except Exception as e:
+            self.log.debug(e)
+            sys.exit(13)
 
 
 def main():
-
     parser = argparse.ArgumentParser(description='Glenda Service.')
 
     parser.add_argument('operation',
@@ -124,21 +138,24 @@ def main():
     args = parser.parse_args()
     operation = args.operation
 
-    pidfile = '/var/run/mydaemon.pid'
+    pidfile = 'glenda.pid'
+
     daemon = Glendaemon(pidfile)
 
-    if operation:
-        if operation == 'start':
-            daemon.start()
-        if operation == 'restart':
-            daemon.restart()
-        if operation == 'stop':
-            daemon.stop()
-        else:
-            print("Unknown command")
-            sys.exit(2)
+    if operation == 'start':
+        daemon.start()
+        logging.info("Glenda started")
+    if operation == 'restart':
+        daemon.restart()
+        logging.info("Glenda restarted")
+    if operation == 'stop':
+        daemon.stop()
+        logging.info("Glenda stopped")
+    else:
+        logging.info("Unknown command")
+        sys.exit(2)
 
-        sys.exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
