@@ -26,6 +26,8 @@ from ircbot import IrcBot
 from daemon_python import DaemonPython
 
 logging.basicConfig(filename='glenda.log', level=logging.DEBUG)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("irc.client").setLevel(logging.WARNING)
 
 
 class GlendaDaemon(DaemonPython):
@@ -144,17 +146,17 @@ def main():
     daemon = GlendaDaemon(pidfile)
 
     if operation == 'start':
-        daemon.start()
         logging.info("Glenda started")
+        daemon.start()
     elif operation == 'restart':
-        daemon.restart()
         logging.info("Glenda restarted")
+        daemon.restart()
     elif operation == 'stop':
-        daemon.stop()
         logging.info("Glenda stopped")
+        daemon.stop()
     elif operation == 'status':
-        # daemon.stop()
         logging.info("Not implemented yet(tm)")
+        # daemon.stop()
     else:
         logging.info("Unknown command")
         sys.exit(2)
