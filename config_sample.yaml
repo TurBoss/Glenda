@@ -1,17 +1,18 @@
 bot_owner: your_irc_nick
 
 matrix:
-    host: http://localhost:8008
-    username: bot_name
-    password: bot_pass
+  host: http://localhost.lan:8008
+  domain: localhost.lan
+  username: bot_name
+  password: bot_pass
 
 irc:
-    spring_server: irc.localhost.lan
-    bot_nick: bot_nick
-    bot_password: bot_pass
+  spring_server: irc.localhost.lan
+  bot_nick: bot_nick
+  bot_password: bot_pass
 
 channels:
-    "#channel1": ["#room1:localhost.lan", ["!room_id"]]
-    "#channel2": ["#room2:localhost.lan", ["!room_id"]]
-    "#channel3": ["#room3:localhost.lan", ["!room_id"]]
-    "#channel4": ["#room4:localhost.lan", ["!room_id"]]
+  "#channel1": ["#room1:localhost.lan", ["!room_id"]]
+  "#channel2": ["#room2:localhost.lan", ["!room_id"]]
+  "#channel3": ["#room3:localhost.lan", ["!room_id"]]
+  "#channel4": ["#room4:localhost.lan", ["!room_id"]]
