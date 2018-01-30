@@ -7,8 +7,7 @@ from appservice_framework import AppService
 loop = asyncio.get_event_loop()
 loop.set_debug(True)
 
-
-room = "#test01"
+room = "#test"
 
 apps = AppService(matrix_server="http://localhost:8008",
                   server_domain="localhost",
@@ -18,6 +17,7 @@ apps = AppService(matrix_server="http://localhost:8008",
                   room_namespace="#irc_.*",
                   database_url="sqlite:///:memory:",
                   loop=loop)
+
 
 @apps.service_connect
 async def connect_irc(apps, serviceid, auth_token):
@@ -51,6 +51,7 @@ with apps.run() as run_forever:
     room = loop.run_until_complete(apps.create_linked_room(user1, room))
     conn, serviceid = apps.get_connection(wait_for_connect=True)
 
+
     @conn.on("PRIVMSG")
     async def recieve_message(**kwargs):
         userid = kwargs['nick']
@@ -61,6 +62,5 @@ with apps.run() as run_forever:
         user = await apps.create_matrix_user(userid)
         await apps.add_user_to_room(user.matrixid, f"#irc_{roomid}:localhost")
         await apps.relay_service_message(userid, roomid, message, None)
-
 
 run_forever()
