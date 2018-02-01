@@ -25,7 +25,9 @@ from ircbot import IrcBot
 
 from daemon_python import DaemonPython
 
-logging.basicConfig(filename='glenda.log', level=logging.DEBUG)
+FORMAT = "[%(name)s][%(levelname)s]  %(message)s (%(filename)s:%(lineno)d)"
+
+logging.basicConfig(filename='glenda.log', level=logging.DEBUG, format=FORMAT)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("irc.client").setLevel(logging.WARNING)
 
