@@ -11,10 +11,18 @@ import irc.strings
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 
-
-
 class IrcBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, channels, domain, username, nickname, server, password, client, rooms, rooms_id, bot_owner,
+    def __init__(self,
+                 channels,
+                 domain,
+                 username,
+                 nickname,
+                 server,
+                 password,
+                 client,
+                 rooms,
+                 rooms_id,
+                 bot_owner,
                  port=6667):
 
         spec = irc.bot.ServerSpec(server, port=port, password=password)
