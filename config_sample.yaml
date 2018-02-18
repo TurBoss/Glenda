@@ -3,6 +3,8 @@ bot_owner: your_irc_nick
 matrix:
   host: http://localhost.lan:8008
   domain: localhost.lan
+  token: wfghWEGh3wgWHEf3478sHFWE
+  namespace: local
   username: bot_name
   password: bot_pass
 
@@ -13,6 +15,6 @@ irc:
 
 channels:
   "#channel1": ["#room1:localhost.lan", ["!room_id"]]
-  "#channel2": ["#room2:localhost.lan", ["!room_id"]]
-  "#channel3": ["#room3:localhost.lan", ["!room_id"]]
-  "#channel4": ["#room4:localhost.lan", ["!room_id"]]
+#  "#channel2": ["#room2:localhost.lan", ["!room_id"]]
+#  "#channel3": ["#room3:localhost.lan", ["!room_id"]]
+#  "#channel4": ["#room4:localhost.lan", ["!room_id"]]
