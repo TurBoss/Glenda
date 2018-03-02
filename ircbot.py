@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: future_fstrings -*-
 
 import sys
 import logging

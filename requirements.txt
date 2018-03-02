@@ -17,3 +17,4 @@ PyYAML
 requests
 six
 tempora
+future-fstrings

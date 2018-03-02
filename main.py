@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: future_fstrings -*-
+
 
 # A simple chat client for matrix.
 # This sample will allow you to connect to a room, and send/recieve messages.
