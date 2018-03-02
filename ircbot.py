@@ -49,7 +49,13 @@ class IrcBot(irc.bot.SingleServerIRCBot):
     def on_matrix_msg(self, room, event):
 
         if event['type'] == "m.room.message":
-            if event['sender'] != f"@{self.username}:{self.domain}":
+            user = self.client.get_user(event['sender'])
+            user_display_name = user.get_display_name()
+
+            bot = self.client.get_user(f"@{self.username}:{self.domain}")
+            bot_display_name = bot.get_display_name()
+
+            if user_display_name != bot_display_name:
                 if event['content']['msgtype'] == "m.image":
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
@@ -63,7 +69,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             url = f"https://{domain}/_matrix/media/v1/download/{domain}{pic_code}"
 
                             sender = event['sender'].split(":", 1)[0]
-                            msg = f"<{sender}> {url}"
+                            msg = f"<{user_display_name}> {url}"
 
                             self.connection.privmsg(channel, msg)
 
@@ -72,8 +78,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                         if event['room_id'] in room_id[1]:
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
-                                sender = event['sender'].split(":", 1)[0]
-                                self.connection.privmsg(channel, f"<{sender}> {line}")
+                                self.connection.privmsg(channel, f"<{user_display_name}> {line}")
 
                 if event['content']['msgtype'] == "m.emote":
                     for channel, room_id in self.rooms_id.items():
@@ -81,12 +86,11 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
                                 sender = event['sender'].split(":", 1)[0]
-                                self.connection.privmsg(channel, f"<<{sender}>> {line}")
+                                self.connection.privmsg(channel, f"<<{user_display_name}>> {line}")
         else:
             self.log.debug(event['type'])
 
     def on_nicknameinuse(self, c, e):
-        # c.nick(c.get_nickname() + "_")
         self.log.info(f"nick {c.get_nickname()} name in used")
         sys.exit(1)
 
@@ -102,22 +106,26 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        if "Nightwatch" in source or "MelBot" in source:
-            self.rooms[f"{e.target}"].send_text(f"{msg}")
-        else:
-            self.rooms[f"{e.target}"].send_text(f"[{source}] {msg}")
+        bot = self.client.get_user(f"@{self.username}:{self.domain}")
+        bot_display_name = bot.get_display_name()
 
-        return
+        if "Nightwatch" == source or "MelBot" == source:
+            self.rooms[e.target].send_text(f"*{msg}")
+        elif bot_display_name != source:
+            self.rooms[e.target].send_text(f"[{source}] {msg}")
 
     def on_action(self, c, e):
 
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        if "Nightwatch" in source or "MelBot" in source:
-            self.rooms[f"{e.target}"].send_text(f"*{msg}")
-        else:
-            self.rooms[f"{e.target}"].send_text(f"*{source} {msg}")
+        bot = self.client.get_user(f"@{self.username}:{self.domain}")
+        bot_display_name = bot.get_display_name()
+
+        if "Nightwatch" == source or "MelBot" == source:
+            self.rooms[e.target].send_text(f"*{msg}")
+        elif bot_display_name != source:
+            self.rooms[e.target].send_text(f"*{source} {msg}")
 
     def on_dccmsg(self, c, e):
         # non-chat DCC messages are raw bytes; decode as text
