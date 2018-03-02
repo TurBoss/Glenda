@@ -1,4 +1,5 @@
-"""Generic linux daemon base class for python 3.x."""
+# -*- coding: future_fstrings -*-
+# Generic linux daemon base class for python 3.x.
 
 import sys, os, time, atexit, signal
 import logging

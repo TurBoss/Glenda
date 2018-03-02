@@ -19,3 +19,4 @@ six
 tempora
 bottom
 git+https://github.com/Cadair/python-appservice-framework.git
+future-fstrings

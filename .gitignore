@@ -62,3 +62,4 @@ config.yaml
 venv/
 
 glenda\.pid
+glenda.log
