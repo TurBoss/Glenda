@@ -49,29 +49,18 @@ class IrcBot(irc.bot.SingleServerIRCBot):
     def on_matrix_msg(self, room, event):
 
         if event['type'] == "m.room.message":
+            
             user = self.client.get_user(event['sender'])
             user_display_name = user.get_display_name()
+
+            if user_display_name is None:
+                self.log.debug("Unable to retrieve users Display Name falling back to account name")
+                user_display_name = event['sender'].split(":", 1)[0]
 
             bot = self.client.get_user(f"@{self.username}:{self.domain}")
             bot_display_name = bot.get_display_name()
 
             if user_display_name != bot_display_name:
-                if event['content']['msgtype'] == "m.image":
-                    for channel, room_id in self.rooms_id.items():
-                        if event['room_id'] in room_id[1]:
-
-                            mxc_url = event['content']['url']
-                            o = urlparse(mxc_url)
-
-                            domain = o.netloc
-                            pic_code = o.path
-
-                            url = f"https://{domain}/_matrix/media/v1/download/{domain}{pic_code}"
-
-                            sender = event['sender'].split(":", 1)[0]
-                            msg = f"<{user_display_name}> {url}"
-
-                            self.connection.privmsg(channel, msg)
 
                 if event['content']['msgtype'] == "m.text":
                     for channel, room_id in self.rooms_id.items():
@@ -85,8 +74,23 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                         if event['room_id'] in room_id[1]:
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
-                                sender = event['sender'].split(":", 1)[0]
                                 self.connection.privmsg(channel, f"<<{user_display_name}>> {line}")
+
+                if event['content']['msgtype'] == "m.image":
+                    for channel, room_id in self.rooms_id.items():
+                        if event['room_id'] in room_id[1]:
+
+                            mxc_url = event['content']['url']
+                            o = urlparse(mxc_url)
+
+                            domain = o.netloc
+                            pic_code = o.path
+
+                            url = f"https://{domain}/_matrix/media/v1/download/{domain}{pic_code}"
+
+                            msg = f"<{user_display_name}> {url}"
+
+                            self.connection.privmsg(channel, msg)
         else:
             self.log.debug(event['type'])
 
