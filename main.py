@@ -36,7 +36,7 @@ logging.getLogger("irc.client").setLevel(logging.WARNING)
 class GlendaDaemon(DaemonPython):
 
     def __init__(self, pid_file):
-        super(DaemonPython, self).__init__()
+        super(GlendaDaemon, self).__init__()
 
         self.log = logging.getLogger(__name__)
 
