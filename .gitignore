@@ -57,9 +57,10 @@ docs/_build/
 # PyBuilder
 target/
 
+.ropeproject/
 .idea
 config.yaml
 venv/
 
-glenda\.pid
+glenda.pid
 glenda.log
