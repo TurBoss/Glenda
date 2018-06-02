@@ -32,10 +32,10 @@ def main():
 
     @apps.service_connect
     async def connect_spring(apps, serviceid, auth_token):
-        conn = await spring.connect(loop, "lobby.springrts.com", port=8200)
 
+        conn = await spring.connect("lobby.springrts.com", port=8200)
 
-        passwd = base64.b64encode(MD5.new("pladur13lol".encode("utf-8")).digest()).decode("utf-8")
+        passwd = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
         user = "bot"
 
         conn.login(user, passwd)
