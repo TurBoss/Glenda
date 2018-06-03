@@ -13,7 +13,7 @@ import yaml
 loop = asyncio.get_event_loop()
 loop.set_debug(True)
 
-test_room = "#test"
+# test_room = "#test"
 
 
 def main():
@@ -33,12 +33,12 @@ def main():
     @apps.service_connect
     async def connect_spring(apps, serviceid, auth_token):
 
-        conn = await spring.connect("lobby.springrts.com", port=8200)
+        conn = spring.connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
 
-        passwd = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
-        user = "bot"
+        # passwd = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
+        # user = "bot"
 
-        conn.login(user, passwd)
+        # conn.login(user, passwd)
         """
         @conn.on("login-complete")
         def join_defaults(lobby):
@@ -48,7 +48,7 @@ def main():
         """
         return conn, serviceid
 
-    # user1 = apps.add_authenticated_user("@turboss:springrts.com", "MDAxYmxvY2F0aW9uIHNwcmluZ3J0cy5jb20KMDAxM2lkZW50aWZpZXIga2V5CjAwMTBjaWQgZ2VuID0gMQowMDI5Y2lkIHVzZXJfaWQgPSBAdHVyYm9zczpzcHJpbmdydHMuY29tCjAwMTZjaWQgdHlwZSA9IGFjY2VzcwowMDIxY2lkIG5vbmNlID0gWWRFM2d3Iy4wZlAwNkR0VAowMDJmc2lnbmF0dXJlIH6nLVH6iM95hv_zfvdU-i_Z3F819BR9j9hOWKXm0ObJCg", serviceid="matrix")
+    # user1 = apps.add_authenticated_user("@turboss:springrts.com", "", serviceid="matrix")
 
     # Use a context manager to ensure clean shutdown.
     with apps.run() as run_forever:

@@ -4,6 +4,7 @@ import importlib
 import logging
 import random
 import ssl
+
 from blinker import signal
 
 loop = asyncio.get_event_loop()
@@ -49,7 +50,7 @@ class User:
 
 class LobbyProtocolWrapper:
     """
-    Wraps an IRCProtocol object to allow for automatic reconnection. Only used
+    Wraps an LobbyProtocol object to allow for automatic reconnection. Only used
     internally.
     """
 
@@ -73,12 +74,7 @@ class LobbyProtocol(asyncio.Protocol):
     Represents a connection to SpringRTS Lobby.
     """
 
-    def __init__(self, loop=None):
-        self.loop = loop
-
-    def connection_made(self, transport):
-        self.work = True
-        self.transport = transport
+    def __init__(self):
         self.wrapper = None
         self.logger = logging.getLogger("asyncspring.IRCProtocol")
         self.last_ping = float('inf')
@@ -100,6 +96,11 @@ class LobbyProtocol(asyncio.Protocol):
         self.registration_complete = False
         self.channels_to_join = []
         self.autoreconnect = True
+        self.work = True
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
 
         signal("connected").send(self)
         print("Connection success.")
@@ -124,7 +125,7 @@ class LobbyProtocol(asyncio.Protocol):
         self.logger.critical("Connection lost.")
         signal("connection-lost").send(self.wrapper)
 
-    ## Core helper functions
+    # Core helper functions
 
     def process_queue(self):
         """
@@ -135,7 +136,7 @@ class LobbyProtocol(asyncio.Protocol):
             return
         if self.queue:
             self._writeln(self.queue.pop(0))
-        self.loop.call_later(self.queue_timer, self.process_queue)
+        loop.call_later(self.queue_timer, self.process_queue)
 
     def on(self, event):
         def process(f):
@@ -190,7 +191,7 @@ class LobbyProtocol(asyncio.Protocol):
         signal("registration-complete").send(self)
         self.nickname = self.username
 
-    ## protocol abstractions
+    # protocol abstractions
 
     def login(self, username, password):
         """
@@ -287,7 +288,7 @@ class LobbyProtocol(asyncio.Protocol):
         s = "a{}".format("".join([random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ") for i in range(8)]))
         return s
 
-        ## catch-all
+        # catch-all
 
         # def __getattr__(self, attr):
         #     if attr in self.__dict__:
@@ -314,10 +315,8 @@ def connect(server, port=8200, use_ssl=False):
     """
     print("connect")
 
-    coro = loop.create_connection(LobbyProtocol(loop=loop), host=server, port=port, ssl=use_ssl)
-    task = asyncio.async(coro)
-
-    transport, protocol = loop.run_until_complete(task)
+    coro = loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
+    transport, protocol = loop.run_until_complete(coro)
 
     protocol.wrapper = LobbyProtocolWrapper(protocol)
     protocol.server_info = {"host": server, "port": port, "ssl": use_ssl}

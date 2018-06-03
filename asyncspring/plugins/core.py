@@ -200,7 +200,8 @@ def _matrix_channeltopic(message):
 
 signal("raw").connect(_redispatch_raw)
 signal("spring").connect(_redispatch_spring)
-signal("connected").connect(_login_client)
+
+# signal("connected").connect(_login_client)
 
 signal("spring-ping").connect(_pong)
 signal("spring-pong").connect(_catch_pong)
