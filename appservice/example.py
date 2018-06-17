@@ -1,6 +1,6 @@
 from appservice_framework import AppService
 
-from asyncspring import spring
+from asyncspring.spring import connect
 
 from Crypto.Hash import MD5
 from Crypto.Hash import SHA256
@@ -8,16 +8,23 @@ from Crypto.Hash import SHA256
 import base64
 import asyncio
 
+from blinker import signal
+
+
 import yaml
 
 loop = asyncio.get_event_loop()
 loop.set_debug(True)
+
+
+connections = {}
 
 # test_room = "#test"
 
 
 def main():
 
+    print("open config.")
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
 
@@ -32,13 +39,16 @@ def main():
 
     @apps.service_connect
     async def connect_spring(apps, serviceid, auth_token):
+        print("connect to springlobby")
 
-        conn = spring.connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
+        conn = connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
 
-        # passwd = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
-        # user = "bot"
+        """
+        passwd_hash = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
+        user = "bot"
 
-        # conn.login(user, passwd)
+        conn.login(user, passwd_hash)
+        """
         """
         @conn.on("login-complete")
         def join_defaults(lobby):
@@ -52,6 +62,7 @@ def main():
 
     # Use a context manager to ensure clean shutdown.
     with apps.run() as run_forever:
+        print("run forever")
         run_forever()
 
 

@@ -1,3 +1,5 @@
+import sys
+
 import asyncio
 import collections
 import importlib
@@ -7,7 +9,7 @@ import ssl
 
 from blinker import signal
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 
 connections = {}
 
@@ -316,12 +318,17 @@ def connect(server, port=8200, use_ssl=False):
     print("connect")
 
     coro = loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
-    transport, protocol = loop.run_until_complete(coro)
+
+    protocol = asyncio.ensure_future(coro)
+
+    print("Lol")
 
     protocol.wrapper = LobbyProtocolWrapper(protocol)
     protocol.server_info = {"host": server, "port": port, "ssl": use_ssl}
     protocol.netid = "{}:{}:{}{}".format(id(protocol), server, port, "+" if use_ssl else "-")
+
     signal("netid-available").send(protocol)
+
     connections[protocol.netid] = protocol.wrapper
 
     return protocol.wrapper
@@ -337,7 +344,6 @@ def disconnected(client_wrapper):
     print("Disconnected from {}. Attempting to reconnect...".format(client_wrapper.netid))
     signal("disconnected").send(client_wrapper.protocol)
     if not client_wrapper.protocol.autoreconnect:
-        import sys
         sys.exit(2)
 
     connector = loop.create_connection(LobbyProtocol, **client_wrapper.server_info)
