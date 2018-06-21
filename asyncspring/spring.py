@@ -319,7 +319,7 @@ def connect(server, port=8200, use_ssl=False):
 
     coro = loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
 
-    protocol = loop.run_until_complete(coro)
+    transport, protocol = loop.run_until_complete(coro)
 
     protocol.wrapper = LobbyProtocolWrapper(protocol)
     protocol.server_info = {"host": server, "port": port, "ssl": use_ssl}
