@@ -9,7 +9,7 @@ import ssl
 
 from blinker import signal
 
-loop = asyncio.new_event_loop()
+loop = asyncio.get_event_loop()
 
 connections = {}
 
@@ -311,15 +311,13 @@ def get_user(hostmask):
     return User.from_hostmask(hostmask)
 
 
-def connect(server, port=8200, use_ssl=False):
+async def connect(server, port=8200, use_ssl=False):
     """
     Connect to an SpringRTS Lobby server. Returns a proxy to an LobbyProtocol object.
     """
     print("connect")
 
-    coro = loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
-
-    transport, protocol = loop.run_until_complete(coro)
+    transport, protocol = await loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
 
     protocol.wrapper = LobbyProtocolWrapper(protocol)
     protocol.server_info = {"host": server, "port": port, "ssl": use_ssl}

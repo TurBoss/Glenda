@@ -41,7 +41,7 @@ def main():
     async def connect_spring(apps, serviceid, auth_token):
         print("connect to springlobby")
 
-        conn = connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
+        conn = await connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
 
         """
         passwd_hash = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
