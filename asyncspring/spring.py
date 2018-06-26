@@ -76,21 +76,19 @@ class LobbyProtocol(asyncio.Protocol):
     Represents a connection to SpringRTS Lobby.
     """
 
-    def __init__(self):
+    def connection_made(self, transport):
+        print("Connection MADE")
+
+        self.work = True
+        self.transport = transport
         self.wrapper = None
-        self.logger = logging.getLogger("asyncspring.IRCProtocol")
+        self.logger = logging.getLogger("asyncspring.LobbyProtocol")
         self.last_ping = float('inf')
         self.last_pong = 0
         self.lag = 0
         self.buf = ""
-        self.username = ""
-        self.password = ""
-        self.nick = ""
+        self.old_nickname = None
         self.nickname = ""
-        self.user = ""
-        self.realname = ""
-        self.email = ""
-        self.mode = ""
         self.server_supports = collections.defaultdict(lambda *_: None)
         self.queue = []
         self.queue_timer = 1.5
@@ -98,14 +96,10 @@ class LobbyProtocol(asyncio.Protocol):
         self.registration_complete = False
         self.channels_to_join = []
         self.autoreconnect = True
-        self.work = True
-        self.transport = None
-
-    def connection_made(self, transport):
-        self.transport = transport
 
         signal("connected").send(self)
         print("Connection success.")
+
         self.process_queue()
 
     def data_received(self, data):
@@ -134,6 +128,7 @@ class LobbyProtocol(asyncio.Protocol):
         Pull data from the pending messages queue and send it. Schedule ourself
         to be executed again later.
         """
+
         if not self.work:
             return
         if self.queue:
@@ -200,6 +195,7 @@ class LobbyProtocol(asyncio.Protocol):
         Queue registration with the server. This includes sending nickname,
         ident, realname, and password (if required by the server).
         """
+        print("login")
         self.username = username
         self.password = password
 
@@ -209,11 +205,9 @@ class LobbyProtocol(asyncio.Protocol):
         """
         Send Login message to SpringLobby Server.
         """
-
+        print("_login")
         self.writeln(f"LOGIN {self.username} {self.password} 3200 * TurBoMatrix 0.1")
         signal("login-complete").send(self)
-
-        return self
 
     def join(self, channel, key=None):
         """
@@ -315,7 +309,6 @@ async def connect(server, port=8200, use_ssl=False):
     """
     Connect to an SpringRTS Lobby server. Returns a proxy to an LobbyProtocol object.
     """
-    print("connect")
 
     transport, protocol = await loop.create_connection(LobbyProtocol, host=server, port=port, ssl=use_ssl)
 
@@ -328,7 +321,6 @@ async def connect(server, port=8200, use_ssl=False):
     connections[protocol.netid] = protocol.wrapper
 
     return protocol.wrapper
-
 
 def disconnected(client_wrapper):
     """
@@ -350,8 +342,8 @@ def disconnected(client_wrapper):
         """
 
         print("Reconnected! {}".format(client_wrapper.netid))
-        _, protocol = f.result()
-        protocol.register(client_wrapper.user, client_wrapper.password)
+        transport, protocol = f.result()
+        protocol.login(client_wrapper.username, client_wrapper.password)
         protocol.channels_to_join = client_wrapper.channels_to_join
         protocol.server_info = client_wrapper.server_info
         protocol.netid = client_wrapper.netid

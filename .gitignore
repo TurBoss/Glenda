@@ -66,3 +66,4 @@ glenda.pid
 glenda.log
 
 *.db
+*.db-journal

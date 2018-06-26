@@ -24,7 +24,6 @@ connections = {}
 
 def main():
 
-    print("open config.")
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
 
@@ -39,30 +38,25 @@ def main():
 
     @apps.service_connect
     async def connect_spring(apps, serviceid, auth_token):
-        print("connect to springlobby")
+        print("connect {} to springlobby".format(serviceid))
 
         conn = await connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
+        conn.login(serviceid, auth_token)
 
-        """
-        passwd_hash = base64.b64encode(MD5.new("".encode("utf-8")).digest()).decode("utf-8")
-        user = "bot"
-
-        conn.login(user, passwd_hash)
-        """
-        """
-        @conn.on("login-complete")
-        def join_defaults(lobby):
-            conn.join("#moddev")
-            conn.join("#sy")
-            conn.join("#bots")
-        """
         return conn, serviceid
 
-    # user1 = apps.add_authenticated_user("@turboss:springrts.com", "", serviceid="matrix")
+    """
+    @apps.service_join_room
+    async def send_message(apps, auth_user, room, content):
+        conn = await apps.service_connections[auth_user]
+
+        conn.send('PRIVMSG', target=room.serviceid, message=content['body'])
+    """
+
+    # user1 = apps.add_authenticated_user("@turboss:springrts.com", "", serviceid="turboss")
 
     # Use a context manager to ensure clean shutdown.
     with apps.run() as run_forever:
-        print("run forever")
         run_forever()
 
 
