@@ -94,7 +94,7 @@ class LobbyProtocol(asyncio.Protocol):
         self.queue_timer = 1.5
         self.caps = set()
         self.registration_complete = False
-        self.channels_to_join = []
+        self.channels_to_join = ["#bots"]
         self.autoreconnect = True
 
         signal("connected").send(self)
@@ -136,9 +136,10 @@ class LobbyProtocol(asyncio.Protocol):
         loop.call_later(self.queue_timer, self.process_queue)
 
     def on(self, event):
+
         def process(f):
             """
-            Register an event with Blinker. Convienence function.
+            Register an event with Blinker. Convenience function.
             """
             print("Registering function for event {}".format(event))
             signal(event).connect(f)
@@ -195,7 +196,6 @@ class LobbyProtocol(asyncio.Protocol):
         Queue registration with the server. This includes sending nickname,
         ident, realname, and password (if required by the server).
         """
-        print("login")
         self.username = username
         self.password = password
 
@@ -205,19 +205,14 @@ class LobbyProtocol(asyncio.Protocol):
         """
         Send Login message to SpringLobby Server.
         """
-        print("_login")
         self.writeln(f"LOGIN {self.username} {self.password} 3200 * TurBoMatrix 0.1")
         signal("login-complete").send(self)
 
-    def join(self, channel, key=None):
+    def join(self, channel):
         """
         Join a channel.
         """
-
-        if key:
-            self.writeln(f"JOIN {channel} {key}")
-        else:
-            self.writeln(f"JOIN {channel}")
+        self.writeln(f"JOIN {channel}")
 
         return self
 
@@ -321,6 +316,7 @@ async def connect(server, port=8200, use_ssl=False):
     connections[protocol.netid] = protocol.wrapper
 
     return protocol.wrapper
+
 
 def disconnected(client_wrapper):
     """

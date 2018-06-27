@@ -1,29 +1,16 @@
 from appservice_framework import AppService
-
 from asyncspring.spring import connect
 
-from Crypto.Hash import MD5
-from Crypto.Hash import SHA256
-
-import base64
 import asyncio
-
-from blinker import signal
-
-
 import yaml
 
 loop = asyncio.get_event_loop()
 loop.set_debug(True)
 
-
 connections = {}
-
-# test_room = "#test"
 
 
 def main():
-
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
 
@@ -43,6 +30,11 @@ def main():
         conn = await connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
         conn.login(serviceid, auth_token)
 
+        @conn.on("public-message")
+        def incoming_message(message, user, channel):
+            print("test")
+            # conn.say(channel, "Hi {}! You're connecting from {}.".format(user.nick, user.host))
+
         return conn, serviceid
 
     """
@@ -53,10 +45,19 @@ def main():
         conn.send('PRIVMSG', target=room.serviceid, message=content['body'])
     """
 
-    # user1 = apps.add_authenticated_user("@turboss:springrts.com", "", serviceid="turboss")
+    # user1 = apps.add_authenticated_user("@tole:springrts.com", "pladur", serviceid="tole")
 
     # Use a context manager to ensure clean shutdown.
     with apps.run() as run_forever:
+        conn, serviceid = apps.get_connection(wait_for_connect=True)
+
+        @conn.on("private")
+        def incoming_message(parsed, user, target, text):
+
+            matrix_user = apps.create_matrix_user(user)
+            apps.add_user_to_room(matrix_user, f"#test:localhost")
+            apps.relay_service_message(user, target, text, None)
+
         run_forever()
 
 

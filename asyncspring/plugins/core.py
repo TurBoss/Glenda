@@ -31,11 +31,11 @@ def _redispatch_saidex(message):
 
 
 def _redispatch_saidprivate(message):
-    _redispatch_message_common(message, "message")
+    _redispatch_message_common(message, "private")
 
 
 def _redispatch_saidprivateex(message):
-    _redispatch_message_common(message, "message")
+    _redispatch_message_common(message, "private")
 
 
 def _redispatch_notice(message):
