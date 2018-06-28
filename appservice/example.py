@@ -46,17 +46,17 @@ def main():
     with apps.run() as run_forever:
         conn, serviceid = apps.get_connection(wait_for_connect=True)
 
-        @conn.on("public-said")
-        def incoming_message(parsed, user, target, text):
+        @conn.on("said")
+        async def incoming_message(parsed, user, target, text):
             print("SAID!!!!!!!!!! {} {}".format(user.username, target))
 
-            matrix_user = asyncio.ensure_future(apps.create_matrix_user("@spring_{}".format(user.username)))
+            matrix_user = await apps.create_matrix_user("@spring_{}".format(user.username))
             print("LOL")
 
-            room = asyncio.ensure_future(apps.create_linked_room(matrix_user, "#{}:springrts.com".format(target), matrix_roomname=target))
+            room = await apps.create_linked_room(matrix_user, target, matrix_roomname=target)
 
             print("TROLL")
-            asyncio.ensure_future(apps.add_user_to_room("@spring_{}".format(user.username), "#{}:springrts.com".format(target)))
+            await apps.add_user_to_room("@spring_{}".format(user.username), "#{}:springrts.com".format(target))
             # await apps.relay_service_message(user, target, text, None)
 
         run_forever()

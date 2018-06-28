@@ -1,4 +1,4 @@
-from blinker import signal
+from asyncblink import signal
 
 command_character_registry = []
 

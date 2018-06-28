@@ -1,4 +1,4 @@
-from blinker import signal
+from asyncblink import signal
 from asyncspring.spring import get_user
 from asyncspring.parser import LobbyMessage
 
@@ -13,15 +13,15 @@ def _pong(message):
 
 
 def _redispatch_message_common(message, mtype):
-    print(message)
     target, text = message.params[0], message.params[1]
     user = get_user(message.source) if message.source else ''
     signal(mtype).send(message, user=user, target=target, text=text)
+    """
     if target == message.client.nickname:
         signal("private-{}".format(mtype)).send(message, user=user, target=target, text=text)
     else:
         signal("public-{}".format(mtype)).send(message, user=user, target=target, text=text)
-
+    """
 
 def _redispatch_said(message):
     _redispatch_message_common(message, "said")

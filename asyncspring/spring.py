@@ -7,7 +7,7 @@ import logging
 import random
 import ssl
 
-from blinker import signal
+from asyncblink import signal
 
 loop = asyncio.get_event_loop()
 
@@ -112,7 +112,7 @@ class LobbyProtocol(asyncio.Protocol):
             index = self.buf.index("\n")
             line_received = self.buf[:index].strip()
             self.buf = self.buf[index + 1:]
-            print(line_received)
+            # print(line_received)
             signal("raw").send(self, text=line_received)
 
     def connection_lost(self, exc):

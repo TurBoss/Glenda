@@ -1,4 +1,4 @@
-from blinker import signal
+from asyncblink import signal
 import base64
 
 import asyncspring.plugins.cap
