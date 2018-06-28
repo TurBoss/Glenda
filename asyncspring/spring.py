@@ -94,7 +94,7 @@ class LobbyProtocol(asyncio.Protocol):
         self.queue_timer = 1.5
         self.caps = set()
         self.registration_complete = False
-        self.channels_to_join = ["#bots"]
+        self.channels_to_join = ["#test"]
         self.autoreconnect = True
 
         signal("connected").send(self)
@@ -294,6 +294,7 @@ class LobbyProtocol(asyncio.Protocol):
 
 
 def get_user(hostmask):
+    print("HOSTMASK!!!!!!")
     print(hostmask)
     if "!" not in hostmask or "@" not in hostmask:
         return User(hostmask, hostmask, hostmask)

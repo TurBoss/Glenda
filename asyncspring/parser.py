@@ -51,6 +51,7 @@ class LobbyMessage:
         """
         Create a new LobbyMessage from an unparsed Lobby line.
         """
+
         if isinstance(message, bytes):
             message = message.decode('UTF-8', 'replace')
 
@@ -67,9 +68,10 @@ class LobbyMessage:
                 tags[k] = v
 
         source = "Lobby"
-        if s[0].startswith(':'):
-            source = s[0][1:]
-            s = s[1:]
+        if s[0] == 'SAID' or s[0] == 'SAIDEX':
+            source = s[2]
+        elif s[0] == 'SAIDPRIVATE' or s[0] == 'SAIDPRIVATEEX':
+            source = s[1]
 
         verb = s[0].upper()
         params = s[1:]

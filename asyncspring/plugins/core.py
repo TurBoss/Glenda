@@ -13,6 +13,7 @@ def _pong(message):
 
 
 def _redispatch_message_common(message, mtype):
+    print(message)
     target, text = message.params[0], message.params[1]
     user = get_user(message.source) if message.source else ''
     signal(mtype).send(message, user=user, target=target, text=text)
@@ -23,19 +24,19 @@ def _redispatch_message_common(message, mtype):
 
 
 def _redispatch_said(message):
-    _redispatch_message_common(message, "message")
+    _redispatch_message_common(message, "said")
 
 
 def _redispatch_saidex(message):
-    _redispatch_message_common(message, "message")
+    _redispatch_message_common(message, "saidex")
 
 
 def _redispatch_saidprivate(message):
-    _redispatch_message_common(message, "private")
+    _redispatch_message_common(message, "said")
 
 
 def _redispatch_saidprivateex(message):
-    _redispatch_message_common(message, "private")
+    _redispatch_message_common(message, "saidex")
 
 
 def _redispatch_notice(message):
