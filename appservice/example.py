@@ -1,4 +1,5 @@
 from appservice_framework import AppService
+from appservice_framework import database as db
 from asyncspring.spring import connect
 
 import asyncio
@@ -8,6 +9,46 @@ loop = asyncio.get_event_loop()
 loop.set_debug(True)
 
 connections = {}
+
+
+async def create_new_user(apps, client, spring_user):
+    user_id = spring_user.username
+    user = apps.get_user(serviceid=user_id)
+
+    if not user:
+        user = await apps.create_matrix_user(user_id,
+                                             nick=user_id)
+    return user
+
+
+async def add_users_to_room(apps, client, conv, room):
+    for user in conv.users:
+        if not user.is_self:
+            user = await create_new_user(apps, client, user)
+
+            if not user in room.users:
+                await apps.add_user_to_room(user.matrixid, room.matrixalias)
+
+
+async def create_new_room(apps, client, auth_user, service_roomid):
+    conv = client.get_conversation(service_roomid)
+
+    # Set the conversation name
+    convname = None
+
+    if conv.name:
+        convname = conv.name
+    elif len(conv.users) == 2:
+        for user in conv.users:
+            if not user.is_self:
+                convname = user.full_name
+
+    room = await apps.create_linked_room(auth_user, service_roomid,
+                                         matrix_roomname=convname)
+
+    return room
+
+
 
 
 def main():
@@ -32,16 +73,6 @@ def main():
 
         return conn, serviceid
 
-    """
-    @apps.service_join_room
-    async def send_message(apps, auth_user, room, content):
-        conn = await apps.service_connections[auth_user]
-
-        conn.send('PRIVMSG', target=room.serviceid, message=content['body'])
-    """
-
-    # user1 = apps.add_authenticated_user("@tole:springrts.com", "pladur", serviceid="tole")
-
     # Use a context manager to ensure clean shutdown.
     with apps.run() as run_forever:
         conn, serviceid = apps.get_connection(wait_for_connect=True)
@@ -50,14 +81,23 @@ def main():
         async def incoming_message(parsed, user, target, text):
             print("SAID!!!!!!!!!! {} {}".format(user.username, target))
 
-            matrix_user = await apps.create_matrix_user("@spring_{}".format(user.username))
-            print("LOL")
+            # matrix_user = await apps.create_matrix_user("{}".format(user.username))
 
-            room = await apps.create_linked_room(matrix_user, target, matrix_roomname=target)
+            matrix_user1 = apps.get_user("@tole:springrts.com", user_type="auth")
+            # matrix_user2 = apps.get_user("@turboss:springrts.com", user_type="auth")
 
-            print("TROLL")
-            await apps.add_user_to_room("@spring_{}".format(user.username), "#{}:springrts.com".format(target))
-            # await apps.relay_service_message(user, target, text, None)
+            # print(matrix_user1)
+
+            # assert isinstance(auth_user, db.AuthenticatedUser)
+
+            # room = await apps.create_linked_room(matrix_user1,
+            #                                     "test",
+            #                                     matrix_roomid="#test:springrts.com",
+            #                                     matrix_roomname="Test")
+
+            # await apps.add_user_to_room(matrix_user1, "#test:springrts.com")
+
+            #await apps.relay_service_message(matrix_user1, matrix_user1, text, None)
 
         run_forever()
 
