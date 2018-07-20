@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 """
 parser.py
 Purpose: Conversion of RFC1459 messages to/from native objects.
