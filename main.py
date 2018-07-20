@@ -1,5 +1,4 @@
-# -*- coding: future_fstrings -*-
-
+#!/usr/bin/env python3
 
 # A simple chat client for matrix.
 # This sample will allow you to connect to a room, and send/recieve messages.
@@ -76,7 +75,7 @@ class GlendaDaemon(DaemonPython):
         self.log.info("Bridged rooms:")
 
         for channel, room in self.cfg["channels"].items():
-            self.log.info(f"{channel} <-> {room[0]}")
+            self.log.info("{} <-> {}".format(channel, room[0]))
 
             self.rooms_id[channel] = room
             self.channels.append(channel)

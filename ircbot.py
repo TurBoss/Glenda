@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 import sys
 import logging
 
@@ -57,7 +55,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                 self.log.debug("Unable to retrieve users Display Name falling back to account name")
                 user_display_name = event['sender'].split(":", 1)[0]
 
-            bot = self.client.get_user(f"@{self.username}:{self.domain}")
+            bot = self.client.get_user("@{}:{}".format(self.username, self.domain))
             bot_display_name = bot.get_display_name()
 
             if user_display_name != bot_display_name:
@@ -67,14 +65,14 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                         if event['room_id'] in room_id[1]:
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
-                                self.connection.privmsg(channel, f"<{user_display_name}> {line}")
+                                self.connection.privmsg(channel, "<{}> {}".format(user_display_name, line))
 
                 if event['content']['msgtype'] == "m.emote":
                     for channel, room_id in self.rooms_id.items():
                         if event['room_id'] in room_id[1]:
                             buf = StringIO(event['content']['body'])
                             for line in buf.read().splitlines():
-                                self.connection.privmsg(channel, f"<<{user_display_name}>> {line}")
+                                self.connection.privmsg(channel, "<<{}>> {}".format(user_display_name, line))
 
                 if event['content']['msgtype'] == "m.image":
                     for channel, room_id in self.rooms_id.items():
@@ -86,16 +84,16 @@ class IrcBot(irc.bot.SingleServerIRCBot):
                             domain = o.netloc
                             pic_code = o.path
 
-                            url = f"https://{domain}/_matrix/media/v1/download/{domain}{pic_code}"
+                            url = "https://{0}/_matrix/media/v1/download/{0}{1}".format(domain, pic_code)
 
-                            msg = f"<{user_display_name}> {url}"
+                            msg = "<{}> {}".format(user_display_name, url)
 
                             self.connection.privmsg(channel, msg)
         else:
             self.log.debug(event['type'])
 
     def on_nicknameinuse(self, c, e):
-        self.log.info(f"nick {c.get_nickname()} name in used")
+        self.log.info("nick {} name in used".format(c.get_nickname()))
         sys.exit(1)
 
     def on_welcome(self, c, e):
@@ -110,26 +108,26 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        bot = self.client.get_user(f"@{self.username}:{self.domain}")
+        bot = self.client.get_user("@{}:{}".format(self.username, self.domain))
         bot_display_name = bot.get_display_name()
 
         if "Nightwatch" == source or "MelBot" == source:
-            self.rooms[e.target].send_text(f"*{msg}")
+            self.rooms[e.target].send_text("*{}".format(msg))
         elif bot_display_name != source:
-            self.rooms[e.target].send_text(f"[{source}] {msg}")
+            self.rooms[e.target].send_text("[{}] {}".format(source, msg))
 
     def on_action(self, c, e):
 
         msg = e.arguments[0]
         source = e.source.split("!", 1)[0]
 
-        bot = self.client.get_user(f"@{self.username}:{self.domain}")
+        bot = self.client.get_user("@{}:{}".format(self.username, self.domain))
         bot_display_name = bot.get_display_name()
 
         if "Nightwatch" == source or "MelBot" == source:
-            self.rooms[e.target].send_text(f"*{msg}")
+            self.rooms[e.target].send_text("{}".format(msg))
         elif bot_display_name != source:
-            self.rooms[e.target].send_text(f"*{source} {msg}")
+            self.rooms[e.target].send_text("{} {}".format(source, msg))
 
     def on_dccmsg(self, c, e):
         # non-chat DCC messages are raw bytes; decode as text
