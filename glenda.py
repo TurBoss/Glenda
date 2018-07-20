@@ -33,7 +33,7 @@ class Glenda:
             self.cfg = yaml.load(yml_file)
 
         self.rooms = []
-        self.client_rooms = []
+        self.client_rooms = {}
         self.client = None
 
     def run(self):
@@ -66,6 +66,7 @@ class Glenda:
 
         try:
             for room in self.rooms:
+                print(room)
                 self.client_rooms[room[0]] = self.client.join_room(room[1][0])
 
         except MatrixRequestError as e:
@@ -77,7 +78,7 @@ class Glenda:
                 self.log.debug("Couldn't find room.")
                 sys.exit(12)
 
-
+@asyncio.coroutine
 async def main():
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
@@ -85,9 +86,12 @@ async def main():
     conn = await connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
     conn.login(cfg["lobby"]["username"], cfg["lobby"]["pwd"])
 
+    print("lobby")
+
     glenda = Glenda()
     glenda.run()
 
 
 if __name__ == "__main__":
     loop.run_until_complete(main())
+    loop.run_forever()
