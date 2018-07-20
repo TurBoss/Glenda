@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+import sys
+import logging
+import asyncio
+import yaml
+
 from asyncspring.spring import connect
 
 
@@ -7,10 +12,6 @@ from matrix_client.client import MatrixClient
 from matrix_client.api import MatrixRequestError
 from requests.exceptions import MissingSchema
 
-import sys
-import logging
-import asyncio
-import yaml
 
 loop = asyncio.get_event_loop()
 loop.set_debug(True)
