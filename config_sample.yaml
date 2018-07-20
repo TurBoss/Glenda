@@ -1,18 +1,12 @@
-bot_owner: your_irc_nick
-
 matrix:
-  host: http://localhost.lan:8008
-  domain: localhost.lan
-  username: bot_name
-  password: bot_pass
+  host: "https://springrts.com"
+  domain: "springrts.com"
+  token: ""
+  user_namespace: "@springc_"
+  sender_localpart: "spring"
+  room_namespace: "#spring_.*"
+  database_url: "sqlite:///spring.db"
 
-irc:
-  spring_server: irc.localhost.lan
-  bot_nick: bot_nick
-  bot_password: bot_pass
-
-channels:
-  "#channel1": ["#room1:localhost.lan", ["!room_id"]]
-  "#channel2": ["#room2:localhost.lan", ["!room_id"]]
-  "#channel3": ["#room3:localhost.lan", ["!room_id"]]
-  "#channel4": ["#room4:localhost.lan", ["!room_id"]]
+lobby:
+  host: "lobby.springrts.com"
+  port: 8200

@@ -65,4 +65,5 @@ venv/
 glenda.pid
 glenda.log
 
-appservice/spring\.db
+*.db
+*.db-journal

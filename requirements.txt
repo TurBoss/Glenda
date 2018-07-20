@@ -1,3 +1,4 @@
+asyncblink
 appdirs
 inflect
 irc
@@ -17,4 +18,8 @@ PyYAML
 requests
 six
 tempora
+git+https://github.com/Cadair/python-appservice-framework.git
+git+https://github.com/Cadair/matrix-python-sdk.git@user_id2
 future-fstrings
+sqlalchemy
+pyCrypto
