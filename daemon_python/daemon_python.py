@@ -1,4 +1,3 @@
-# -*- coding: future_fstrings -*-
 # Generic linux daemon base class for python 3.x.
 
 import sys, os, time, atexit, signal
@@ -23,7 +22,7 @@ class DaemonPython:
                 # exit first parent
                 sys.exit(0)
         except OSError as err:
-            sys.stderr.write(f"fork #1 failed: {err}\n")
+            sys.stderr.write("fork #1 failed: {}\n".format(err))
             sys.exit(1)
 
         # decouple from parent environment
@@ -73,7 +72,7 @@ class DaemonPython:
             self.pid = None
 
         if self.pid:
-            message = f"pid file {self.pid_file} already exist.\nDaemon already running?\n"
+            message = "pid file {} already exist.\nDaemon already running?\n".format(self.pid_file)
             sys.stderr.write(message.format())
             sys.exit(1)
 
@@ -92,7 +91,7 @@ class DaemonPython:
             self.pid = None
 
         if not self.pid:
-            message = f"pid file {self.pid_file} does not exist.\nDaemon not running?\n"
+            message = "pid file {} does not exist.\nDaemon not running?\n".format(self.pid_file)
             sys.stderr.write(message)
             return  # not an error in a restart
 
