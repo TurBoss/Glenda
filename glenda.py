@@ -36,28 +36,21 @@ class Glenda:
         self.lobby_client = None
 
     # Called when a message is recieved.
-    def on_message(self, room, event):
-        if event['type'] == "m.room.member":
-            if event['membership'] == "join":
-                print("{0} joined".format(event['content']['displayname']))
-        elif event['type'] == "m.room.message":
-            if event['content']['msgtype'] == "m.text":
-                print("{0}: {1}".format(event['sender'], event['content']['body']))
-        else:
-            print(event['type'])
+    def on_room_message(self, room, event):
+        if event['sender'] != "@{}:{}".format(self.cfg["matrix"]["username"], self.cfg["matrix"]["domain"]):
+            if event['type'] == "m.room.message":
+                if event['content']['msgtype'] == "m.text":
+                    user = self.matrix_client.get_user(event['sender'])
+                    user_display_name = user.get_display_name()
+                    self.lobby_client.say("test", "<{}> {}".format(user_display_name, event['content']['body']))
+            else:
+                self.log.debug(event['type'])
 
     @asyncio.coroutine
     async def run(self):
 
         self.lobby_client = await spring.connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
 
-        @self.lobby_client.on("said")
-        async def incoming_message(parsed, user, target, text):
-            self.lobby_client.say(target, "{}: you said {}".format(user.nick, text))
-
-        @self.lobby_client.on("said-private")
-        async def incoming_message(parsed, user, target, text):
-            self.lobby_client.say(target, "{}: you said {}".format(user.nick, text))
 
         self.matrix_client = MatrixClient(self.cfg["matrix"]["host"])
 
@@ -86,7 +79,7 @@ class Glenda:
             try:
 
                 self.client_rooms[lobby_room] = self.matrix_client.join_room(matrix_room[0])
-                self.client_rooms[lobby_room].add_listener(self.on_message)
+                self.client_rooms[lobby_room].add_listener(self.on_room_message)
 
             except MatrixRequestError as e:
                 self.log.debug(e)
@@ -123,6 +116,13 @@ def main():
     glenda = Glenda()
 
     loop.run_until_complete(glenda.run())
+
+    @glenda.lobby_client.on("said")
+    def on_lobby_said(parsed, user, target, text):
+        if user != "Glenda":
+            matrix_room = glenda.client_rooms["#{}".format(target)]
+            matrix_room.send_text("<{}> {}".format(user, text))
+
     loop.run_forever()
 
 

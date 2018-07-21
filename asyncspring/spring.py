@@ -233,7 +233,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln("SAY {} :{}".format(channel, message[:400]))
+            self.writeln("SAY {} {}".format(channel, message[:400]))
             message = message[400:]
 
     def say_ex(self, channel, message):

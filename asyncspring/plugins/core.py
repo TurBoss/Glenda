@@ -15,10 +15,9 @@ def _pong(message):
 
 
 def _redispatch_message_common(message, mtype):
-    target, text = message.params[0], message.params[1]
-    user = get_user(message.source) if message.source else ''
+    user = message.source
+    target, text = message.params[0], message.params[2]
     signal(mtype).send(message, user=user, target=target, text=text)
-    print("signal {} fired".format(mtype))
 
 
 def _redispatch_said(message):

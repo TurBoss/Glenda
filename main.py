@@ -83,7 +83,7 @@ class GlendaDaemon(DaemonPython):
         self.client = MatrixClient(self.host)
 
         try:
-            self.client.login_with_password(self.username, self.password)
+            self.client.login(self.username, self.password, sync=True)
 
         except MatrixRequestError as e:
             self.log.debug(e)
