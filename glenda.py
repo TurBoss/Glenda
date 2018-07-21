@@ -35,7 +35,7 @@ class Glenda:
         self.matrix_client = None
         self.lobby_client = None
 
-    # Called when a message is recieved.
+    # Called when a message is recieved from the matrix
     def on_room_message(self, room, event):
         if event['sender'] != "@{}:{}".format(self.cfg["matrix"]["username"], self.cfg["matrix"]["domain"]):
             if event['type'] == "m.room.message":
