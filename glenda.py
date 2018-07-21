@@ -5,7 +5,7 @@ import logging
 import asyncio
 import yaml
 
-from asyncspring.spring import connect
+from asyncspring import spring
 
 
 from matrix_client.client import MatrixClient
@@ -78,8 +78,17 @@ class Glenda:
                 self.log.debug("Couldn't find room.")
                 sys.exit(12)
 
-        conn = await connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
+        conn = await spring.connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
         conn.login(self.cfg["lobby"]["username"], self.cfg["lobby"]["pwd"])
+
+        @conn.on("said")
+        async def incoming_message(parsed, user, target, text):
+            print("YORKLOL")
+
+        @conn.on("said-private")
+        async def incoming_message(parsed, user, target, text):
+            print("YORKLOL")
+
 
 def main():
 

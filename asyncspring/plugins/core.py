@@ -25,6 +25,7 @@ def _redispatch_message_common(message, mtype):
         signal("public-{}".format(mtype)).send(message, user=user, target=target, text=text)
     """
 
+
 def _redispatch_said(message):
     _redispatch_message_common(message, "said")
 
@@ -177,22 +178,6 @@ def _parse_motd(message):
     pass
 
 
-def _matrix_adduser(message):
-    pass
-
-
-def _matrix_removeuser(message):
-    pass
-
-
-def _matrix_joined(message):
-    pass
-
-
-def _matrix_left(message):
-    pass
-
-
 def _matrix_clients(message):
     pass
 
@@ -227,11 +212,11 @@ signal("spring-denied").connect(_connection_denied)
 
 signal("spring-motd").connect(_parse_motd)
 
-signal("spring-adduser").connect(_matrix_adduser)
-signal("spring-removeuser").connect(_matrix_removeuser)
+# signal("spring-adduser").connect(_matrix_adduser)
+# signal("spring-removeuser").connect(_matrix_removeuser)
 
-signal("spring-left").connect(_matrix_left)
-signal("spring-joined").connect(_matrix_joined)
+# signal("spring-left").connect(_matrix_left)
+# signal("spring-joined").connect(_matrix_joined)
 
 signal("spring-clients").connect(_matrix_clients)
 signal("spring-channeltopic").connect(_matrix_channeltopic)
