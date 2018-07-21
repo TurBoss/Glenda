@@ -30,11 +30,11 @@ def _redispatch_saidex(message):
 
 
 def _redispatch_saidprivate(message):
-    _redispatch_message_common(message, "said")
+    _redispatch_message_common(message, "said-private")
 
 
 def _redispatch_saidprivateex(message):
-    _redispatch_message_common(message, "saidex")
+    _redispatch_message_common(message, "saidex-private")
 
 
 def _redispatch_notice(message):
@@ -162,7 +162,6 @@ def _connection_registered(message):
     _queue_ping(message.client)
     for channel in message.client.channels_to_join:
         message.client.join(channel)
-
 
 def _connection_denied(message):
     message.client.registration_complete = False

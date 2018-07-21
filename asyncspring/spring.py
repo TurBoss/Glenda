@@ -94,7 +94,7 @@ class LobbyProtocol(asyncio.Protocol):
         self.queue_timer = 1.5
         self.caps = set()
         self.registration_complete = False
-        self.channels_to_join = ["#test"]
+        self.channels_to_join = []
         self.autoreconnect = True
 
         signal("connected").send(self)
@@ -133,6 +133,7 @@ class LobbyProtocol(asyncio.Protocol):
             return
         if self.queue:
             self._writeln(self.queue.pop(0))
+
         loop.call_later(self.queue_timer, self.process_queue)
 
     def on(self, event):
@@ -153,9 +154,9 @@ class LobbyProtocol(asyncio.Protocol):
         """
         if not isinstance(line, bytes):
             line = line.encode("utf-8")
-        print(line)
+        print("SENT:\t\t{}".format(line))
         self.transport.write(line + b"\r\n")
-        signal("irc-send").send(line.decode())
+        signal("lobby-send").send(line.decode())
 
     def writeln(self, line):
         """
