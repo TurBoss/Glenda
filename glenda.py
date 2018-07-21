@@ -14,7 +14,7 @@ from requests.exceptions import MissingSchema
 
 
 loop = asyncio.get_event_loop()
-loop.set_debug(True)
+# loop.set_debug(True)
 
 
 FORMAT = "[%(name)s][%(levelname)s]  %(message)s (%(filename)s:%(lineno)d)"
