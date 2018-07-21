@@ -49,8 +49,6 @@ async def create_new_room(apps, client, auth_user, service_roomid):
     return room
 
 
-
-
 def main():
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)

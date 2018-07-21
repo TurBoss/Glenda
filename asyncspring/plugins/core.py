@@ -11,7 +11,7 @@ ping_clients = []
 
 
 def _pong(message):
-    message.client.writeln(f"PONG {message.params[0]}")
+    message.client.writeln("PONG {}".format(message.params[0]))
 
 
 def _redispatch_message_common(message, mtype):
@@ -137,7 +137,7 @@ def _catch_pong(message):
 
 
 def _redispatch_spring(message):
-    signal(f"spring-{message.verb.lower()}").send(message)
+    signal("spring-{}".format(message.verb.lower())).send(message)
 
 
 def _redispatch_raw(client, text):

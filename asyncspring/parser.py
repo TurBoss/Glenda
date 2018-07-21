@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 """
 parser.py
 Purpose: Conversion of RFC1459 messages to/from native objects.
@@ -90,4 +88,4 @@ class LobbyMessage:
         return cls.from_data(verb, params, source, tags)
 
     def __str__(self):
-        return f"LobbyMessage: verb={self.verb}, params={self.params}, source={self.source}"
+        return "LobbyMessage: verb={}, params={}, source={}".format(self.verb, self.params, self.source)

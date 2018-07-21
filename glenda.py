@@ -36,7 +36,7 @@ class Glenda:
         self.client_rooms = {}
         self.client = None
 
-    def run(self):
+    async def run(self):
 
         self.log.info("Bridged rooms:")
 
@@ -48,7 +48,7 @@ class Glenda:
         self.client = MatrixClient(self.cfg["matrix"]["host"])
 
         try:
-            self.client.login_with_password(self.cfg["matrix"]["username"], self.cfg["matrix"]["pwd"])
+            self.client.login(self.cfg["matrix"]["username"], self.cfg["matrix"]["pwd"], sync=True)
 
         except MatrixRequestError as e:
             self.log.debug(e)
@@ -78,20 +78,16 @@ class Glenda:
                 self.log.debug("Couldn't find room.")
                 sys.exit(12)
 
-@asyncio.coroutine
-async def main():
-    with open("config.yaml", 'r') as yml_file:
-        cfg = yaml.load(yml_file)
+        conn = await connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
+        conn.login(self.cfg["lobby"]["username"], self.cfg["lobby"]["pwd"])
 
-    conn = await connect(cfg["lobby"]["host"], port=cfg["lobby"]["port"])
-    conn.login(cfg["lobby"]["username"], cfg["lobby"]["pwd"])
-
-    print("lobby")
+def main():
 
     glenda = Glenda()
-    glenda.run()
+
+    loop.run_until_complete(glenda.run())
+    loop.run_forever()
 
 
 if __name__ == "__main__":
-    loop.run_until_complete(main())
-    loop.run_forever()
+    main()

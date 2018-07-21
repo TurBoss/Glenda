@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 import sys
 
 import asyncio
@@ -183,9 +181,9 @@ class LobbyProtocol(asyncio.Protocol):
         Send registration messages to SpringLobby Server.
         """
         if self.email:
-            self.writeln(f"REGISTER {self.username} {self.password} {self.email}")
+            self.writeln("REGISTER {} {} {}".format(self.username, self.password, self.email))
         else:
-            self.writeln(f"REGISTER {self.username} {self.password}")
+            self.writeln("REGISTER {} {}".format(self.username, self.password))
 
         print("Sent registration information")
         signal("registration-complete").send(self)
@@ -207,14 +205,14 @@ class LobbyProtocol(asyncio.Protocol):
         """
         Send Login message to SpringLobby Server.
         """
-        self.writeln(f"LOGIN {self.username} {self.password} 3200 * TurBoMatrix 0.1")
+        self.writeln("LOGIN {} {} 3200 * TurBoMatrix 0.1".format(self.username, self.password))
         signal("login-complete").send(self)
 
     def join(self, channel):
         """
         Join a channel.
         """
-        self.writeln(f"JOIN {channel}")
+        self.writeln("JOIN {}".format(channel))
 
         return self
 
@@ -223,7 +221,7 @@ class LobbyProtocol(asyncio.Protocol):
         Leave a channel.
         """
 
-        self.writeln(f"LEAVE {channel}")
+        self.writeln("LEAVE {}".format(channel))
 
     def say(self, channel, message):
         """
@@ -234,7 +232,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln(f"SAY {channel} :{message[:400]}")
+            self.writeln("SAY {} :{}".format(channel, message[:400]))
             message = message[400:]
 
     def say_ex(self, channel, message):
@@ -246,7 +244,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln(f"SAYEX {channel} :{message[:400]}")
+            self.writeln("SAYEX {} :{}".format(channel, message[:400]))
             message = message[400:]
 
     def say_private(self, username, message):
@@ -258,7 +256,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln(f"SAYPRIVATE {username} :{message[:400]}")
+            self.writeln("SAYPRIVATE {} :{}".format(username, message[:400]))
             message = message[400:]
 
     def say_private_ex(self, username, message):
@@ -270,7 +268,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln(f"SAYPRIVATEEX {username} :{message[:400]}")
+            self.writeln("SAYPRIVATEEX {} :{}".format(username, message[:400]))
             message = message[400:]
 
     def nick_in_use_handler(self):
