@@ -34,7 +34,8 @@ class Glenda:
 
         self.rooms = []
         self.client_rooms = {}
-        self.client = None
+        self.matrix_client = None
+        self.lobby_client = None
 
     async def run(self):
 
@@ -45,10 +46,10 @@ class Glenda:
 
             self.rooms.append((lobby_room, matrix_room))
 
-        self.client = MatrixClient(self.cfg["matrix"]["host"])
+        self.matrix_client = MatrixClient(self.cfg["matrix"]["host"])
 
         try:
-            self.client.login(self.cfg["matrix"]["username"], self.cfg["matrix"]["pwd"], sync=True)
+            self.matrix_client.login(self.cfg["matrix"]["username"], self.cfg["matrix"]["pwd"], sync=True)
 
         except MatrixRequestError as e:
             self.log.debug(e)
@@ -66,8 +67,7 @@ class Glenda:
 
         try:
             for room in self.rooms:
-                print(room)
-                self.client_rooms[room[0]] = self.client.join_room(room[1][0])
+                self.client_rooms[room[0]] = self.matrix_client.join_room(room[1][0])
 
         except MatrixRequestError as e:
             self.log.debug(e)
@@ -78,14 +78,14 @@ class Glenda:
                 self.log.debug("Couldn't find room.")
                 sys.exit(12)
 
-        conn = await spring.connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
-        conn.login(self.cfg["lobby"]["username"], self.cfg["lobby"]["pwd"])
+        self.lobby_client = await spring.connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])
+        self.lobby_client.login(self.cfg["lobby"]["username"], self.cfg["lobby"]["pwd"])
 
-        @conn.on("said")
+        @self.lobby_client.on("said")
         async def incoming_message(parsed, user, target, text):
             print("YORKLOL")
 
-        @conn.on("said-private")
+        @self.lobby_client.on("said-private")
         async def incoming_message(parsed, user, target, text):
             print("YORKLOL")
 
