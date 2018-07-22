@@ -61,6 +61,7 @@ target/
 .idea
 config.yaml
 venv/
+venv35/
 
 glenda.pid
 glenda.log
