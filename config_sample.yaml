@@ -1,12 +1,14 @@
 matrix:
   host: "https://springrts.com"
   domain: "springrts.com"
-  token: ""
-  user_namespace: "@springc_"
-  sender_localpart: "spring"
-  room_namespace: "#spring_.*"
-  database_url: "sqlite:///spring.db"
+  username: ""
+  pwd: ""
 
 lobby:
   host: "lobby.springrts.com"
   port: 8200
+  username: ""
+  pwd: ""
+
+rooms:
+#  "jauriarts": ["#jauriarts:springrts.com", "!rgAdhPTYNKLOnGYqFO:jauriarts.org"]
