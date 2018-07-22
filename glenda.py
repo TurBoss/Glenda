@@ -40,9 +40,14 @@ class Glenda:
         if event['sender'] != "@{}:{}".format(self.cfg["matrix"]["username"], self.cfg["matrix"]["domain"]):
             if event['type'] == "m.room.message":
                 if event['content']['msgtype'] == "m.text":
+
                     user = self.matrix_client.get_user(event['sender'])
                     user_display_name = user.get_display_name()
-                    self.lobby_client.say("test", "<{}> {}".format(user_display_name, event['content']['body']))
+
+                    for lobby_room, matrix_room in self.rooms:
+                        if event["room_id"] == matrix_room[1]:
+                            print(lobby_room)
+                            self.lobby_client.say(lobby_room, "<{}> {}".format(user_display_name, event['content']['body']))
             else:
                 self.log.debug(event['type'])
 
@@ -72,12 +77,12 @@ class Glenda:
             sys.exit(3)
 
         for lobby_room, matrix_room in self.cfg["rooms"].items():
+
             self.rooms.append((lobby_room, matrix_room))
 
-            self.lobby_client.channels_to_join.append(lobby_room)
+            self.lobby_client.channels_to_join.append("#{}".format(lobby_room))
 
             try:
-
                 self.client_rooms[lobby_room] = self.matrix_client.join_room(matrix_room[0])
                 self.client_rooms[lobby_room].add_listener(self.on_room_message)
 
