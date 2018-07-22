@@ -152,13 +152,13 @@ def main():
     loop.run_until_complete(glenda.run())
 
     @glenda.lobby_client.on("said")
-    async def on_lobby_said(parsed, user, target, text):
+    def on_lobby_said(parsed, user, target, text):
         if user != cfg["lobby"]["username"]:
             matrix_room = glenda.client_rooms[target]
             matrix_room.send_text("<{}> {}".format(user, text))
 
     @glenda.lobby_client.on("saidex")
-    async def on_lobby_saidex(parsed, user, target, text):
+    def on_lobby_saidex(parsed, user, target, text):
         if user != cfg["lobby"]["username"]:
             matrix_room = glenda.client_rooms[target]
             matrix_room.send_emote("<{}> {}".format(user, text))
