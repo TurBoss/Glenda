@@ -80,7 +80,6 @@ class Glenda:
             else:
                 print(event)
 
-    @asyncio.coroutine
     async def run(self):
 
         self.lobby_client = await spring.connect(self.cfg["lobby"]["host"], port=self.cfg["lobby"]["port"])

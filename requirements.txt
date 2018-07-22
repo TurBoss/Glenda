@@ -1,5 +1,4 @@
 asyncblink
 PyYAML
-matrix_client
 request
 git+https://github.com/matrix-org/matrix-python-sdk.git
