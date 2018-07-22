@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 from asyncblink import signal
 from asyncspring.spring import get_user
 from asyncspring.parser import LobbyMessage
