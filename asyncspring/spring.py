@@ -154,7 +154,7 @@ class LobbyProtocol(asyncio.Protocol):
         """
         if not isinstance(line, bytes):
             line = line.encode("utf-8")
-        print("SENT:\t\t{}".format(line))
+        # print("SENT:\t\t{}".format(line))
         self.transport.write(line + b"\r\n")
         signal("lobby-send").send(line.decode())
 
@@ -245,7 +245,7 @@ class LobbyProtocol(asyncio.Protocol):
         message = message.replace("\n", "").replace("\r", "")
 
         while message:
-            self.writeln("SAYEX {} :{}".format(channel, message[:400]))
+            self.writeln("SAYEX {} {}".format(channel, message[:400]))
             message = message[400:]
 
     def say_private(self, username, message):
