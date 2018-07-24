@@ -142,7 +142,6 @@ def main():
     def on_lobby_said(parsed, user, target, text):
         if user == cfg["lobby"]["username"]:
             return
-        print(glenda.lobby_rooms)
         matrix_room = glenda.lobby_rooms[target]
         try:
             matrix_room.send_text("<{}> {}".format(user, text))
