@@ -11,4 +11,4 @@ lobby:
   pwd: ""
 
 rooms:
-#  "jauriarts": ["#jauriarts:springrts.com", "!rgAdhPTYNKLOnGYqFO:jauriarts.org"]
+  "test": "#test:springrts.com"

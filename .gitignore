@@ -68,3 +68,6 @@ glenda.log
 
 *.db
 *.db-journal
+
+# misc
+*.swap
