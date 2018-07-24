@@ -8,7 +8,7 @@ import yaml
 from asyncspring import spring
 
 from matrix_client.client import MatrixClient
-from matrix_client.api import MatrixRequestError
+from matrix_client.api import MatrixRequestError, MatrixHttpLibError
 from requests.exceptions import MissingSchema
 
 from urllib.parse import urlparse
@@ -37,9 +37,8 @@ class Glenda:
 
     # Called when a message is recieved from the matrix
     def on_room_message(self, room, event):
-        if event['sender'] != "@{}:{}".format(self.cfg["matrix"]["username"], self.cfg["matrix"]["domain"]):
-           # ignore messages to others
-           self.log.error("message to other: %s" %(event))
+        if event['sender'] == "@{}:{}".format(self.cfg["matrix"]["username"], self.cfg["matrix"]["domain"]):
+           # ignore messages sent by ourself
            return
         if event['type'] != "m.room.message":
            self.log.error("unknown event: %s" %(event))
@@ -145,7 +144,10 @@ def main():
             return
         print(glenda.lobby_rooms)
         matrix_room = glenda.lobby_rooms[target]
-        matrix_room.send_text("<{}> {}".format(user, text))
+        try:
+            matrix_room.send_text("<{}> {}".format(user, text))
+        except MatrixHttpLibError:
+            matrix_room.send_text("<{}> {}".format(user, text))
 
     @glenda.lobby_client.on("saidex")
     def on_lobby_saidex(parsed, user, target, text):
