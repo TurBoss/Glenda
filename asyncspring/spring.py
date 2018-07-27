@@ -15,6 +15,8 @@ connections = {}
 
 plugins = []
 
+log = logging.getLogger(__name__)
+
 
 def plugin_registered_handler(plugin_name):
     plugins.append(plugin_name)
@@ -77,7 +79,6 @@ class LobbyProtocol(asyncio.Protocol):
     """
 
     def connection_made(self, transport):
-        print("Connection MADE")
 
         self.work = True
         self.transport = transport
@@ -98,7 +99,7 @@ class LobbyProtocol(asyncio.Protocol):
         self.autoreconnect = True
 
         signal("connected").send(self)
-        print("Connection success.")
+        self.logger.info("Connection success.")
 
         self.process_queue()
 
@@ -142,7 +143,7 @@ class LobbyProtocol(asyncio.Protocol):
             """
             Register an event with Blinker. Convenience function.
             """
-            print("Registering function for event {}".format(event))
+            self.logger.info("Registering function for event {}".format(event))
             signal(event).connect(f)
             return f
 
@@ -186,7 +187,7 @@ class LobbyProtocol(asyncio.Protocol):
         else:
             self.writeln("REGISTER {} {}".format(self.username, self.password))
 
-        print("Sent registration information")
+        self.logger.info("Sent registration information")
         signal("registration-complete").send(self)
         self.nickname = self.username
 
@@ -325,7 +326,7 @@ def disconnected(client_wrapper):
     """
 
     client_wrapper.protocol.work = False
-    print("Disconnected from {}. Attempting to reconnect...".format(client_wrapper.netid))
+    log.info("Disconnected from {}. Attempting to reconnect...".format(client_wrapper.netid))
     signal("disconnected").send(client_wrapper.protocol)
     if not client_wrapper.protocol.autoreconnect:
         sys.exit(2)
@@ -337,7 +338,7 @@ def disconnected(client_wrapper):
         Callback function for a successful reconnection.
         """
 
-        print("Reconnected! {}".format(client_wrapper.netid))
+        log.info("Reconnected! {}".format(client_wrapper.netid))
         transport, protocol = f.result()
         protocol.login(client_wrapper.username, client_wrapper.password)
         protocol.channels_to_join = client_wrapper.channels_to_join

@@ -1,3 +1,6 @@
+general:
+  debug: 0
+
 matrix:
   host: "https://springrts.com"
   domain: "springrts.com"

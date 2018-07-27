@@ -29,6 +29,8 @@ class Glenda:
         self.log = logging.getLogger(__name__)
 
         self.cfg = cfg
+        if self.cfg["general"]["debug"] < 1:
+            self.log.setLevel(logging.INFO)
 
         self.matrix_rooms = {}
         self.lobby_rooms = {}
@@ -123,7 +125,7 @@ class Glenda:
 
         except MissingSchema as e:
             self.log.error("Bad URL format.")
-            self.log.error(e)
+            self.log.debug(e)
             sys.exit(3)
 
         self.matrix_client.start_listener_thread()
@@ -133,6 +135,11 @@ def main():
 
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
+
+    log = logging.getLogger(__name__)
+
+    if cfg["general"]["debug"] < 1:
+        log.setLevel(logging.INFO)
 
     glenda = Glenda(cfg)
 

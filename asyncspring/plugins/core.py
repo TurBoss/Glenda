@@ -4,6 +4,9 @@ from asyncspring.parser import LobbyMessage
 
 import asyncio
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 ping_clients = []
 
@@ -75,7 +78,7 @@ def _parse_mode(message):
         argument_modes += message.client.server_supports["PREFIX"].split(")")[0][1:]
     else:
         argument_modes = "beIqaohvlk"
-    print("argument_modes are", argument_modes)
+    log.info("argument_modes are", argument_modes)
     user = get_user(message.source)
     channel = message.params[0]
     modes = message.params[1]
@@ -95,7 +98,7 @@ def _parse_mode(message):
 
 def _server_supports(message):
     supports = message.params[1:-1]  # No need for "Are supported by this server" or bot's nickname
-    print("Server supports {}".format(supports))
+    log.info("Server supports {}".format(supports))
     for feature in supports:
         if "=" in feature:
             k, v = feature.split("=")
@@ -140,12 +143,12 @@ def _redispatch_raw(client, text):
 
 
 def _register_client(client):
-    print("Sending real registration message")
+    log.info("Sending real registration message")
     asyncio.get_event_loop().call_later(1, client._register)
 
 
 def _login_client(client):
-    print("Server login")
+    log.info("Server login")
     asyncio.get_event_loop().call_later(1, client._login)
 
 
@@ -162,7 +165,7 @@ def _connection_registered(message):
 
 def _connection_denied(message):
     message.client.registration_complete = False
-    print("LOGGIN DENIED BY SERVER")
+    log.info("LOGGIN DENIED BY SERVER")
 
 
 def _parse_motd(message):
