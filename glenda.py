@@ -39,7 +39,7 @@ class Glenda:
 
     # Called when a message is recieved from the matrix
     def on_room_message(self, room, event):
-        if event['sender'] == "@{}:{}".format(self.cfg["matrix"]["user_id"], self.cfg["matrix"]["domain"]):
+        if event['sender'] == "@{}:{}".format(self.cfg["matrix"]["userid"], self.cfg["matrix"]["domain"]):
            # ignore messages sent by ourself
            return
         if event['type'] != "m.room.message":
