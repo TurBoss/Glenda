@@ -40,14 +40,14 @@ class Glenda:
     # Called when a message is recieved from the matrix
     def on_room_message(self, room, event):
         if event['sender'] == "@{}:{}".format(self.cfg["matrix"]["userid"], self.cfg["matrix"]["domain"]):
-           # ignore messages sent by ourself
-           return
+            # ignore messages sent by ourself
+            return
         if event['type'] != "m.room.message":
-           self.log.error("unknown event: %s" %(event))
-           return
+            self.log.error("unknown event: %s" % (event))
+            return
         if not event["room_id"] in self.matrix_rooms:
-           self.log.error("Unknown room: %s vs %s" %(event, self.matrix_rooms))
-           return
+            self.log.error("Unknown room: %s vs %s" % (event, self.matrix_rooms))
+            return
 
         lobby_room = self.matrix_rooms[event["room_id"]]
         if event['content']['msgtype'] == "m.text":
@@ -81,7 +81,7 @@ class Glenda:
                 self.log.error("Room ID/Alias in the wrong format")
                 sys.exit(11)
             else:
-                self.log.error("Couldn't find  %s room." %(matrix_room))
+                self.log.error("Couldn't find  %s room." % (matrix_room))
                 sys.exit(12)
 
     async def run(self):
@@ -132,7 +132,6 @@ class Glenda:
 
 
 def main():
-
     with open("config.yaml", 'r') as yml_file:
         cfg = yaml.load(yml_file)
 
